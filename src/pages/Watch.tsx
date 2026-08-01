@@ -254,7 +254,7 @@ const Watch: React.FC = () => {
         startTimestamp: startTs,
         endTimestamp: endTs,
         buttons: [
-          { label: 'Download The App', url: 'https://onyxaxdb.xyz/d/OnyxaxCinemaSetup' },
+          { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' },
           { label: 'View on TMDB', url: `https://www.themoviedb.org/${type === 'movie' ? 'movie' : 'tv'}/${id}` }
         ]
       });

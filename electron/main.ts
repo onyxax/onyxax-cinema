@@ -59,7 +59,7 @@ function updateInitialActivity() {
         start: startTimestamp.getTime()
       },
       buttons: [
-        { label: 'Download The App', url: 'https://onyxaxdb.xyz/d/OnyxaxCinemaSetup' }
+        { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
       ],
       instance: false,
     }
@@ -83,7 +83,7 @@ ipcMain.handle('UPDATE_RPC', (_event, { details, state, start, end }: { details:
         ...(end && { end })
       },
       buttons: [
-        { label: 'Download The App', url: 'https://onyxaxdb.xyz/d/OnyxaxCinemaSetup' }
+        { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
       ],
       instance: false,
     }
@@ -299,7 +299,7 @@ ipcMain.on('UPDATE_RPC', (_event, data) => {
         small_text: data.smallImageText,
       },
       buttons: data.buttons || [
-        { label: 'Download The App', url: 'https://onyxaxdb.xyz/d/OnyxaxCinemaSetup' }
+        { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
       ],
       instance: false,
     }

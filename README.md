@@ -1,7 +1,7 @@
 # Onyxax Cinema
 
 <p align="center">
-  <img src="public/AppIcon256.png" alt="Onyxax Cinema" width="128" height="128">
+  <img src="public/favicon.svg" alt="Onyxax Cinema" width="128" height="128">
 </p>
 
 A cross-platform streaming desktop application for movies, TV series, and anime, built with Electron, React, and TypeScript.
@@ -10,7 +10,6 @@ A cross-platform streaming desktop application for movies, TV series, and anime,
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg)](https://nodejs.org)
 [![Version](https://img.shields.io/github/package-json/v/onyxax/onyxax-cinema)](https://github.com/onyxax/onyxax-cinema/releases)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fonyxax.xyz&label=onyxax.xyz)](https://onyxax.xyz)
 
 ## Overview
 
@@ -18,7 +17,6 @@ Onyxax Cinema aggregates movies, series, and anime into a single interface with 
 
 ## Links
 
-- **Website** — [onyxax.xyz](https://onyxax.xyz)
 - **Releases** — [github.com/onyxax/onyxax-cinema/releases](https://github.com/onyxax/onyxax-cinema/releases)
 - **Issues** — [github.com/onyxax/onyxax-cinema/issues](https://github.com/onyxax/onyxax-cinema/issues)
 
