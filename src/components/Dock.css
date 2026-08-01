@@ -1,0 +1,225 @@
+.dock {
+  width: 240px; min-width: 240px;
+  margin: 10px 0 10px 10px;
+  border-radius: 14px;
+  height: calc(100% - 20px);
+  flex-shrink: 0; z-index: 100;
+  position: relative;
+  transition: width 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+              min-width 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.dock::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: var(--sidebar);
+  border: 1px solid var(--sidebar-border);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15),
+              0 -8px 32px rgba(0,0,0,0.35),
+              0 8px 32px rgba(0,0,0,0.35);
+}
+.dock.collapsed { width: 48px; min-width: 48px; }
+
+[dir="rtl"] .dock {
+  margin: 10px 10px 10px 0;
+}
+
+.dock-inner {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  height: 100%; padding: 10px 8px;
+  overflow: hidden;
+}
+
+.dock-top { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.dock-header { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+.dock.collapsed .dock-header { justify-content: center; margin-bottom: 6px; }
+
+.dock-collapse-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 6px;
+  color: var(--sidebar-foreground); flex-shrink: 0;
+  background: transparent; border: none; cursor: pointer;
+  transition: all 0.15s ease; opacity: 0.25;
+}
+.dock-collapse-btn:hover { opacity: 0.7; background: var(--sidebar-accent); }
+.dock.collapsed .dock-collapse-btn { opacity: 0.35; }
+
+.dock-spaces { display: flex; flex-direction: column; gap: 1px; padding: 0; }
+.dock.collapsed .dock-spaces { align-items: center; gap: 2px; }
+
+.dock-space {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 8px; border-radius: 7px;
+  color: var(--sidebar-foreground); text-decoration: none;
+  transition: all 0.12s ease; position: relative;
+  opacity: 0.6;
+}
+.dock-space:hover { opacity: 1; background: var(--sidebar-accent); }
+.dock-space.active { opacity: 1; }
+.dock-space.active::before {
+  content: ''; position: absolute; left: -8px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 16px; border-radius: 2px;
+  background: var(--sidebar-primary);
+}
+.dock.collapsed .dock-space { justify-content: center; padding: 5px; border-radius: 7px; }
+.dock.collapsed .dock-space.active {
+  background: color-mix(in srgb, var(--sidebar-primary) 15%, transparent);
+}
+.dock.collapsed .dock-space.active::before { display: none; }
+
+.dock-space svg { width: 18px; height: 18px; flex-shrink: 0; }
+.dock-space-label { font-size: 13px; font-weight: 500; }
+.dock.collapsed .dock-space-label { display: none; }
+
+.dock-tooltip {
+  display: none; position: absolute; left: calc(100% + 10px); top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 9px; border-radius: 6px; white-space: nowrap;
+  background: var(--popover); border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4); z-index: 99999;
+  font-size: 12px; font-weight: 500; color: var(--popover-foreground);
+  animation: tooltip-in 0.12s ease-out;
+}
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateY(-50%) translateX(-3px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+.dock.collapsed .dock-space:hover .dock-tooltip { display: block; }
+
+.dock-divider { height: 1px; margin: 6px 4px; background: var(--sidebar-border); flex-shrink: 0; }
+
+.dock-search {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 6px; padding: 5px 8px;
+  border: 1px solid var(--sidebar-border); border-radius: 7px;
+  transition: border-color 0.15s ease;
+}
+.dock-search:focus-within { border-color: var(--sidebar-primary); }
+
+.dock-search-icon { color: var(--sidebar-foreground); flex-shrink: 0; opacity: 0.35; }
+.dock-search input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--sidebar-foreground); font-size: 11.5px;
+}
+.dock-search input::placeholder { color: var(--sidebar-foreground); opacity: 0.3; }
+
+.dock-pinned-section { flex: 1; overflow-y: auto; min-height: 0; margin-top: 2px; }
+.dock-pinned-section::-webkit-scrollbar { width: 3px; }
+.dock-pinned-section::-webkit-scrollbar-track { background: transparent; }
+.dock-pinned-section::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--sidebar-foreground) 12%, transparent); border-radius: 10px; }
+
+.dock-pinned-header {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 2px; margin-bottom: 6px;
+  font-size: 9px; font-weight: 700; color: var(--sidebar-foreground);
+  text-transform: uppercase; letter-spacing: 0.7px; opacity: 0.35;
+}
+.dock-pinned-count {
+  margin-left: auto; font-size: 9px; font-weight: 600; opacity: 0.5;
+}
+
+.dock-pinned-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
+}
+
+.dock-pinned-card {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 5px; border-radius: 8px; text-decoration: none;
+  background: color-mix(in srgb, var(--sidebar-foreground) 2%, transparent);
+  border: 1px solid var(--sidebar-border);
+  transition: all 0.15s ease; overflow: hidden;
+}
+.dock-pinned-card:hover {
+  background: color-mix(in srgb, var(--sidebar-foreground) 5%, transparent);
+  border-color: color-mix(in srgb, var(--sidebar-primary) 30%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.dock-pinned-card-thumb {
+  width: 100%; aspect-ratio: 2/3; background: var(--muted);
+  border-radius: 5px; overflow: hidden;
+}
+.dock-pinned-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.dock-pinned-card-title {
+  font-size: 10px; font-weight: 500; color: var(--sidebar-foreground);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 0 1px; opacity: 0.75;
+}
+
+.dock-bottom { flex-shrink: 0; }
+
+.dock-user { position: relative; }
+
+.dock-user-btn {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 5px 8px; border-radius: 7px;
+  transition: background 0.12s ease; border: none; background: transparent;
+  cursor: pointer; color: var(--sidebar-foreground);
+}
+.dock-user-btn:hover { background: var(--sidebar-accent); }
+.dock.collapsed .dock-user-btn { justify-content: center; padding: 5px; }
+
+.dock-user-avatar {
+  width: 22px; height: 22px; border-radius: 5px; overflow: hidden; flex-shrink: 0;
+}
+.dock-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.dock-user-info { flex: 1; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.dock-user-name { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
+.dock.collapsed .dock-user-info { display: none; }
+
+.dock-user-chevron { opacity: 0.3; transition: transform 0.2s ease; flex-shrink: 0; }
+.dock-user-chevron.open { transform: rotate(180deg); }
+.dock.collapsed .dock-user-chevron { display: none; }
+
+.dock-user-dropdown {
+  position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
+  padding: 4px; border-radius: 8px; z-index: 10001;
+  background: var(--popover); border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.dock-dropdown-item {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 6px;
+  color: var(--popover-foreground); font-size: 11.5px; font-weight: 500;
+  transition: background 0.1s ease; border: none; background: transparent;
+  cursor: pointer;
+}
+.dock-dropdown-item:hover { background: var(--secondary); }
+.dock-dropdown-item.danger:hover { background: color-mix(in srgb, var(--destructive) 8%, transparent); color: var(--destructive); }
+
+.dock-login-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px; background: var(--sidebar-primary);
+  color: var(--sidebar-primary-foreground);
+  border-radius: 7px; font-weight: 700; font-size: 11px;
+  transition: all 0.12s ease; border: none; cursor: pointer;
+  letter-spacing: 0.2px;
+}
+.dock-login-btn:hover { opacity: 0.85; }
+.dock.collapsed .dock-login-btn span { display: none; }
+.dock.collapsed .dock-login-btn { padding: 6px; }
+
+.dock-context-menu {
+  position: fixed; z-index: 99999; background: var(--popover);
+  border: 1px solid var(--border); padding: 5px 11px; border-radius: 7px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4); cursor: pointer;
+  color: var(--popover-foreground); font-size: 11.5px; font-weight: 500;
+  transition: background 0.1s ease;
+}
+.dock-context-menu:hover { background: var(--secondary); }
+
+@media (max-width: 768px) {
+  .dock { width: 48px; min-width: 48px; margin: 8px 0 8px 8px; height: calc(100% - 16px); }
+  .dock-space-label, .dock-search, .dock-pinned-section,
+  .dock-user-info, .dock-user-chevron { display: none; }
+  .dock-spaces { align-items: center; }
+  .dock-space { justify-content: center; padding: 5px; }
+  .dock-user-btn { justify-content: center; padding: 5px; }
+  .dock-login-btn span { display: none; }
+  .dock-login-btn { padding: 6px; }
+}

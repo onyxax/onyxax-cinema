@@ -1,0 +1,42 @@
+.legal-page { padding: 32px 5% 80px; max-width: 800px; margin: 0 auto; }
+
+.legal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.legal-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--foreground); }
+.legal-header svg { color: var(--primary); }
+
+.legal-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 32px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+
+.legal-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px; font-size: 0.8rem; font-weight: 500;
+  color: var(--muted-foreground); transition: all 0.15s ease;
+  border: 1px solid var(--border); background: transparent;
+}
+.legal-tab:hover { border-color: var(--input); color: var(--foreground); background: var(--secondary); }
+.legal-tab.active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+
+.legal-section h2 { font-size: 1.3rem; font-weight: 700; color: var(--foreground); margin-bottom: 16px; }
+.legal-section h3 { font-size: 1rem; font-weight: 600; color: var(--foreground); margin: 20px 0 10px; }
+
+.legal-section p { font-size: 0.9rem; color: var(--muted-foreground); line-height: 1.65; margin-bottom: 14px; }
+
+.legal-section ul { padding-left: 20px; margin-bottom: 14px; }
+.legal-section li { font-size: 0.9rem; color: var(--muted-foreground); line-height: 1.65; margin-bottom: 6px; }
+
+.legal-section a { color: var(--primary); text-decoration: underline; }
+
+.legal-contact-list { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+
+.legal-contact-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.legal-contact-item svg { color: var(--primary); margin-top: 2px; flex-shrink: 0; }
+.legal-contact-item strong { display: block; font-size: 0.85rem; color: var(--foreground); margin-bottom: 2px; }
+.legal-contact-item a { font-size: 0.85rem; }
+
+@media (max-width: 768px) {
+  .legal-page { padding: 24px 4% 60px; }
+  .legal-tabs { gap: 4px; }
+  .legal-tab { font-size: 0.75rem; padding: 5px 10px; }
+}

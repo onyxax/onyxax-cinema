@@ -1,0 +1,83 @@
+.navbar {
+  width: 100%; height: 48px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 4%;
+  background: var(--background); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 9000;
+}
+
+.navbar-left, .navbar-right { display: flex; align-items: center; gap: 14px; }
+
+.logo-compact { font-size: 0.9rem; font-weight: 700; color: var(--foreground); text-decoration: none; }
+.logo-accent { color: var(--primary); }
+
+.nav-links { display: flex; gap: 4px; }
+
+.nav-link {
+  color: var(--muted-foreground); font-size: 12px; font-weight: 500;
+  padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.15s ease;
+}
+.nav-link:hover, .nav-link.active { color: var(--foreground); background: var(--secondary); }
+
+.user-menu-wrapper { position: relative; display: flex; align-items: center; }
+
+.user-profile-trigger { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 2px 6px; border-radius: 8px; transition: all 0.15s ease; }
+.user-profile-trigger:hover { background: var(--secondary); }
+
+.user-profile-avatar { width: 28px; height: 28px; border-radius: 6px; overflow: hidden; border: 1.5px solid var(--border); }
+.user-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.dropdown-arrow { color: var(--muted-foreground); transition: all 0.15s ease; }
+.dropdown-arrow.open { color: var(--foreground); }
+
+.user-dropdown-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; width: 200px;
+  background: var(--popover); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 6px; box-shadow: var(--shadow-lg);
+}
+
+.dropdown-user-info { padding: 8px 10px; }
+.dropdown-name { font-weight: 600; font-size: 0.85rem; color: var(--foreground); }
+.dropdown-email { font-size: 0.7rem; color: var(--muted-foreground); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+.dropdown-item {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  color: var(--muted-foreground); font-size: 0.8rem; font-weight: 500;
+  transition: all 0.1s ease; background: transparent; border: none; cursor: pointer;
+}
+.dropdown-item:hover { background: var(--secondary); color: var(--foreground); }
+.dropdown-item.logout:hover { color: var(--destructive); background: color-mix(in srgb, var(--destructive) 8%, transparent); }
+.dropdown-item span { flex: 1; text-align: left; }
+
+.search-container {
+  display: flex; align-items: center; border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 8px; height: 32px; transition: all 0.15s ease;
+}
+.search-container:focus-within { border-color: var(--ring); }
+
+.search-input { background: transparent; border: none; color: var(--foreground); width: 0; padding: 0; transition: all 0.15s ease; font-size: 12px; outline: none; }
+.search-container:focus-within .search-input { width: 160px; padding: 0 8px; }
+.search-input::placeholder { color: var(--muted-foreground); }
+
+.search-icon-btn { color: var(--muted-foreground); display: flex; align-items: center; justify-content: center; }
+.search-container:focus-within .search-icon-btn { color: var(--primary); }
+
+.nav-icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); color: var(--muted-foreground); display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+.nav-icon:hover { background: var(--secondary); }
+
+.login-btn-nav {
+  display: flex; align-items: center; gap: 4px; padding: 6px 12px;
+  border-radius: 8px; color: var(--foreground); font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border); transition: all 0.15s ease;
+}
+.login-btn-nav:hover { background: var(--secondary); }
+
+.mobile-menu-btn { display: none; }
+.mobile-menu { display: none; }
+
+@media (max-width: 768px) {
+  .nav-links, .navbar-right { display: none; }
+  .mobile-menu-btn { display: flex; }
+  .mobile-menu { display: block; position: absolute; top: 100%; left: 0; width: 100%; background: var(--popover); border-bottom: 1px solid var(--border); padding: 8px; }
+}

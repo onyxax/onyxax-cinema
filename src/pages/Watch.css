@@ -1,0 +1,21 @@
+.watch-page {
+  width: 100vw; height: 100vh; background: #000;
+  position: fixed; top: 0; left: 0; z-index: 5000;
+  overflow: hidden; user-select: none;
+  padding-top: 32px; box-sizing: border-box; transition: padding 0.3s ease;
+}
+.watch-page.is-fullscreen { padding-top: 0; }
+
+.player-container-fixed { width: 100%; height: 100%; position: relative; }
+
+.back-btn {
+  position: absolute; top: 60px; left: 20px; z-index: 6000;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: color-mix(in srgb, white 10%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, white 15%, transparent);
+  color: white; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s ease;
+}
+.back-btn:hover { background: color-mix(in srgb, white 18%, transparent); border-color: color-mix(in srgb, white 25%, transparent); transform: scale(1.05); }
+.back-btn:active { transform: scale(0.95); }

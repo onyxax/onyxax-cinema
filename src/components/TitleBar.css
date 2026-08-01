@@ -1,0 +1,17 @@
+.title-bar {
+  height: 32px; width: 100%; display: flex; align-items: center;
+  position: fixed; top: 0; left: 0; z-index: 10000;
+  -webkit-app-region: drag; padding: 0 12px; user-select: none;
+  background: var(--muted); border-bottom: 1px solid var(--border);
+}
+
+.title-bar-controls.mac-style { display: flex; gap: 8px; -webkit-app-region: no-drag; }
+
+.control-btn-mac { width: 10px; height: 10px; border-radius: 50%; border: none; cursor: pointer; transition: opacity 0.15s ease; pointer-events: all !important; }
+.control-btn-mac:hover { opacity: 0.7; }
+.control-btn-mac.close { background: #ff5f57; border: 0.5px solid #e0443e; }
+.control-btn-mac.minimize { background: #febc2e; border: 0.5px solid #d8a120; }
+.control-btn-mac.maximize { background: #28c840; border: 0.5px solid #1a9e2d; }
+
+.title-bar-drag { flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; -webkit-app-region: drag; }
+.title-bar-brand { display: flex; align-items: center; gap: 6px; opacity: 0.3; font-size: 8px; font-weight: 600; letter-spacing: 2px; color: var(--foreground); }

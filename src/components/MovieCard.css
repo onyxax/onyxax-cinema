@@ -1,0 +1,114 @@
+.movie-card {
+  position: relative; min-width: 170px; height: 255px;
+  background: var(--card); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.2s ease;
+  overflow: hidden; flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  animation: card-enter 0.35s ease both;
+}
+.movie-card.skeleton { pointer-events: none; cursor: default; }
+.movie-card.wide { min-width: 290px; height: 165px; }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-image-container {
+  position: relative; width: 100%; height: 100%;
+  overflow: hidden; background: var(--muted);
+}
+
+.card-image-container::after {
+  content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--muted), transparent);
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+@keyframes skeleton-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.card-image-container.loaded::after { display: none; }
+
+.wide .card-image-container.loaded::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top, transparent 60%, color-mix(in srgb, #000 40%, transparent) 100%);
+  z-index: 2; pointer-events: none;
+}
+
+.card-top-gradient {
+  position: absolute; top: 0; left: 0; right: 0; height: 80px; z-index: 3;
+  background: linear-gradient(to bottom, color-mix(in srgb, #000 50%, transparent) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.card-title-overlay {
+  position: absolute; top: 8px; left: 10px; right: 10px; z-index: 4;
+  font-size: 0.8rem; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.card-progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: var(--border); z-index: 3; }
+.card-progress-bar { height: 100%; background: var(--primary); transition: width 0.3s ease; }
+
+.card-bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px 10px;
+  background: linear-gradient(to top, color-mix(in srgb, #000 60%, transparent) 0%, transparent 100%);
+  pointer-events: none;
+}
+.card-bottom-progress { flex: 1; height: 3px; background: color-mix(in srgb, #fff 20%, transparent); border-radius: 10px; overflow: hidden; }
+.card-bottom-progress-fill { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.3s ease; }
+.card-bottom-time { font-size: 0.6rem; font-weight: 600; color: #fff; opacity: 0.85; white-space: nowrap; flex-shrink: 0; }
+
+.card-hover-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 10px; z-index: 4;
+  opacity: 0; transition: opacity 0.2s ease;
+  background: linear-gradient(to top, var(--card) 60%, transparent);
+}
+
+.card-hover-title {
+  font-size: 0.75rem; font-weight: 600; color: var(--foreground);
+  margin-bottom: 6px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; line-height: 1.2;
+}
+
+.card-overview { display: none; }
+
+.card-image {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+.card-placeholder {
+  width: 100%; height: 100%; background: var(--muted);
+  display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center;
+}
+.placeholder-title { font-size: 11px; font-weight: 500; color: var(--muted-foreground); }
+
+.remove-progress-btn {
+  position: absolute; top: 6px; right: 6px; width: 24px; height: 24px;
+  border-radius: 50%; background: color-mix(in srgb, #000 50%, transparent); border: none;
+  color: #fff; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; z-index: 5;
+  opacity: 0; transition: opacity 0.15s ease;
+}
+.movie-card:hover .remove-progress-btn { opacity: 1; }
+.remove-progress-btn:hover { background: color-mix(in srgb, #000 70%, transparent); }
+
+@media (max-width: 768px) {
+  .movie-card { min-width: 130px; height: 195px; }
+  .movie-card.wide { min-width: 210px; height: 118px; }
+}
+@media (max-width: 480px) { .movie-card { min-width: 110px; height: 165px; } }
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+.skeleton-img {
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in srgb, var(--muted-foreground) 5%, var(--muted)) 50%, var(--muted) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}

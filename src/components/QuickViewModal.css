@@ -1,0 +1,131 @@
+.quick-view-backdrop {
+  position: fixed; inset: 0; z-index: 19999;
+  background: rgba(0,0,0,0.35);
+  animation: backdropFadeIn 0.2s ease-out;
+}
+.quick-view-backdrop.fade-out {
+  animation: backdropFadeOut 0.2s ease-in forwards;
+}
+
+@keyframes backdropFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdropFadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+.quick-view-modal {
+  position: fixed; z-index: 20000;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  animation: quickViewIn 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  pointer-events: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.quick-view-modal.closing {
+  animation: quickViewOut 0.15s ease-in forwards;
+}
+
+@keyframes quickViewIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes quickViewOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(12px) scale(0.93); }
+}
+
+.quick-view-close {
+  position: absolute; top: 8px; right: 8px; z-index: 10;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: color-mix(in srgb, #000 50%, transparent);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; transition: background 0.15s ease;
+}
+.quick-view-close:hover { background: color-mix(in srgb, #000 70%, transparent); }
+
+.quick-view-backdrop-img {
+  width: 100%; height: 180px; position: relative; overflow: hidden;
+  background: var(--muted);
+}
+.quick-view-backdrop-img-el {
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.quick-view-backdrop-img-el.loaded { opacity: 1; }
+.quick-view-img-skeleton {
+  position: absolute; inset: 0; z-index: 1;
+}
+.quick-view-no-img {
+  width: 100%; height: 100%; background: var(--muted);
+}
+.quick-view-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(to top, var(--card) 0%, transparent 100%);
+}
+
+.quick-view-body {
+  padding: 14px 16px;
+  margin-top: -8px;
+  position: relative;
+  z-index: 2;
+}
+
+.quick-view-title {
+  font-size: 1rem; font-weight: 700; color: var(--foreground);
+  margin-bottom: 6px; line-height: 1.2;
+}
+
+.quick-view-meta {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-bottom: 8px;
+}
+
+.quick-view-match {
+  font-size: 0.7rem; font-weight: 700; color: #46d369;
+  display: flex; align-items: center; gap: 3px;
+}
+.quick-view-match .lucide { color: #46d369; }
+
+.quick-view-year,
+.quick-view-runtime,
+.quick-view-rating {
+  font-size: 0.7rem; color: var(--muted-foreground); font-weight: 500;
+}
+.quick-view-rating { color: var(--foreground); }
+
+.quick-view-genres {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
+}
+.quick-view-genre-tag {
+  font-size: 0.6rem; padding: 2px 8px;
+  border: 1px solid var(--border); border-radius: 100px;
+  color: var(--muted-foreground); font-weight: 500;
+}
+
+.quick-view-overview {
+  font-size: 0.75rem; color: var(--muted-foreground);
+  line-height: 1.5; margin-bottom: 14px;
+}
+
+.quick-view-actions {
+  display: flex; gap: 8px; align-items: center;
+}
+
+.quick-view-play-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 20px; border-radius: 6px;
+  background: var(--primary); color: #fff;
+  font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.quick-view-play-btn:hover { opacity: 0.9; }
+
+.quick-view-list-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--foreground); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; transition: all 0.15s ease;
+}
+.quick-view-list-btn:hover { border-color: var(--input); background: var(--secondary); }
+.quick-view-list-btn.in-list { border-color: var(--primary); color: var(--primary); }

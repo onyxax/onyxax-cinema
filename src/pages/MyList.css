@@ -1,0 +1,57 @@
+.mylist-page { }
+
+.mylist-header { margin-bottom: 28px; }
+
+.mylist-sections { display: flex; flex-direction: column; gap: 20px; }
+
+.mylist-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px 20px 20px;
+  transition: border-color 0.2s ease;
+}
+.mylist-panel:hover { border-color: var(--input); }
+
+.mylist-panel-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--foreground); margin-bottom: 16px;
+}
+.mylist-panel-header svg { color: var(--primary); flex-shrink: 0; }
+
+.mylist-panel-count {
+  margin-left: auto; font-size: 0.65rem; font-weight: 600;
+  color: var(--muted-foreground); background: var(--secondary);
+  padding: 2px 8px; border-radius: 100px;
+}
+
+.mylist-panel-row { display: flex; gap: 20px; }
+.mylist-panel-half { flex: 1; min-width: 0; }
+
+.mylist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px 16px; }
+.mylist-grid-wide { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px 16px; }
+
+.mylist-empty {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 14px; padding: 80px 20px;
+}
+.mylist-empty-icon {
+  width: 64px; height: 64px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--card); border: 1px solid var(--border);
+  color: var(--muted-foreground); margin-bottom: 4px;
+}
+.mylist-empty h2 { font-size: 1.2rem; font-weight: 600; color: var(--foreground); }
+.mylist-empty p { color: var(--muted-foreground); font-size: 0.85rem; max-width: 320px; }
+
+.mylist-explore-btn {
+  margin-top: 8px; padding: 9px 22px; background: var(--foreground);
+  color: var(--background); font-weight: 500; font-size: 0.85rem;
+  border-radius: var(--radius-sm); transition: opacity 0.15s ease;
+}
+.mylist-explore-btn:hover { opacity: 0.85; }
+
+@media (max-width: 768px) {
+  .mylist-panel-row { flex-direction: column; }
+  .mylist-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px 8px; }
+  .mylist-grid-wide { grid-template-columns: 1fr; gap: 12px; }
+  .mylist-panel { padding: 12px 14px 16px; }
+}
