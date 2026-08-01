@@ -1,15 +1,26 @@
 # Onyxax Cinema
 
+<p align="center">
+  <img src="public/AppIcon256.png" alt="Onyxax Cinema" width="128" height="128">
+</p>
+
 A cross-platform streaming desktop application for movies, TV series, and anime, built with Electron, React, and TypeScript.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/onyxax/onyxax-cinema/ci.yml?branch=main&label=CI&logo=github)](https://github.com/onyxax/onyxax-cinema/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg)](https://nodejs.org)
 [![Version](https://img.shields.io/github/package-json/v/onyxax/onyxax-cinema)](https://github.com/onyxax/onyxax-cinema/releases)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fonyxax.xyz&label=onyxax.xyz)](https://onyxax.xyz)
 
 ## Overview
 
 Onyxax Cinema aggregates movies, series, and anime into a single interface with rich TMDB metadata, multi-server playback, persisted watch progress, and Discord Rich Presence. Content is filtered against adult flags before reaching the library. The player is protected end-to-end: stream URLs are resolved in the Electron main process and delivered to the renderer encrypted.
+
+## Links
+
+- **Website** — [onyxax.xyz](https://onyxax.xyz)
+- **Releases** — [github.com/onyxax/onyxax-cinema/releases](https://github.com/onyxax/onyxax-cinema/releases)
+- **Issues** — [github.com/onyxax/onyxax-cinema/issues](https://github.com/onyxax/onyxax-cinema/issues)
 
 ## Features
 
@@ -21,6 +32,7 @@ Onyxax Cinema aggregates movies, series, and anime into a single interface with 
 - **Discord Rich Presence** — shows the currently watched title, progress, and an in-app "Download the app" button
 - **Automatic updates** — checks GitHub releases on startup, downloads, and installs silently or manually
 - **Protected player** — stream URLs are generated in the main process and delivered AES-encrypted to the renderer
+- **Designed for Windows** — packaged as an NSIS installer with silent-update support (Windows 10/11)
 
 ## Tech Stack
 

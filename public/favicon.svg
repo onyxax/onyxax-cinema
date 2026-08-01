@@ -1,15 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="fbg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#363632"/>
-      <stop offset="100%" stop-color="#1a1a18"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16181f"/>
+      <stop offset="100%" stop-color="#06070a"/>
     </linearGradient>
-    <radialGradient id="fglow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#d97757" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#d97757" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="gem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a4f5c"/>
+      <stop offset="100%" stop-color="#101117"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8d98e"/>
+      <stop offset="100%" stop-color="#c98a24"/>
+    </linearGradient>
   </defs>
-  <rect width="48" height="48" rx="10" fill="url(#fbg)"/>
-  <circle cx="24" cy="24" r="20" fill="url(#fglow)"/>
-  <path d="M18 12v24l22-12z" fill="#d97757" stroke="#e88d6f" stroke-width="2" stroke-linejoin="round"/>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <path d="M40 10 L52 22 L52 40 L40 52 L24 52 L12 40 L12 22 L24 10 Z"
+        fill="url(#gem)" stroke="#e3a83c" stroke-opacity="0.35" stroke-width="1"/>
+  <rect x="16" y="28" width="32" height="8" rx="4" fill="#ffffff" fill-opacity="0.05" transform="rotate(45 32 32)"/>
+  <path d="M25 21.75 L25 42.25 L45 32 Z" fill="url(#gold)" stroke="url(#gold)" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M27 23 L27 39 L39 32 Z" fill="#ffffff" fill-opacity="0.14"/>
 </svg>
