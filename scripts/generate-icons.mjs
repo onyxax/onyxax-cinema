@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import fs from 'fs';
 
 const svg = fs.readFileSync('public/app-icon.svg', 'utf8');
-const sizes = [32, 64, 128, 256, 512, 1024];
+const sizes = [32, 64, 128, 180, 192, 256, 512, 1024];
 
 async function generate() {
   for (const size of sizes) {
