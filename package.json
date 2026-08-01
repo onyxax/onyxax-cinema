@@ -64,6 +64,8 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@emnapi/core": "1.11.3",
+    "@emnapi/runtime": "1.11.3",
     "@eslint/js": "^10.0.1",
     "@types/discord-rpc": "^4.0.10",
     "@types/node": "^24.12.2",

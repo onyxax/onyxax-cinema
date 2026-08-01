@@ -1,19 +1,40 @@
-# 🎬 Onyxax Cinema
+# Onyxax Cinema
 
-A cinematic streaming desktop application built with **Electron + React**. Browse and watch movies, TV series, and anime through a single, elegant, privacy-focused interface — with rich metadata from TMDB, saved progress, multi-language support, and Discord Rich Presence.
+A cross-platform streaming desktop application for movies, TV series, and anime, built with Electron, React, and TypeScript.
 
-## ✨ Features
+[![CI](https://img.shields.io/github/actions/workflow/status/onyxax/onyxax-cinema/ci.yml?branch=main&label=CI&logo=github)](https://github.com/onyxax/onyxax-cinema/actions)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22-green.svg)](https://nodejs.org)
+[![Version](https://img.shields.io/github/package-json/v/onyxax/onyxax-cinema)](https://github.com/onyxax/onyxax-cinema/releases)
 
-- **Streaming** — Movies, TV series, and anime with multiple servers, autoplay for the next episode, and persisted watch progress.
-- **Rich metadata** — Powered by the TMDB API with poster art, logos, ratings, and trailers.
-- **Safety filtering** — Content is filtered by keyword and adult flags before it ever reaches the library.
-- **Multi-language UI** — 10 languages (Arabic, English, French, Spanish, German, Italian, Portuguese, Russian, Chinese, Japanese) with automatic RTL layout for Arabic.
-- **Accounts & profiles** — Email/password auth via Supabase, avatar upload via Cloudinary, and a personal library (saved movies, series, anime).
-- **Discord Rich Presence** — Shows what you're watching with a custom "Download the app" button.
-- **In-app updates** — Checks GitHub releases on startup, downloads, and installs silently or manually.
-- **Protected player** — Player URLs are generated in the Electron main process and delivered encrypted to the renderer.
+## Overview
 
-## 🚀 Getting Started
+Onyxax Cinema aggregates movies, series, and anime into a single interface with rich TMDB metadata, multi-server playback, persisted watch progress, and Discord Rich Presence. Content is filtered against adult flags before reaching the library. The player is protected end-to-end: stream URLs are resolved in the Electron main process and delivered to the renderer encrypted.
+
+## Features
+
+- **Catalog** — movies, TV series, and anime with posters, ratings, trailers, and recommendations from the TMDB API
+- **Multi-server playback** — multiple stream providers with autoplay for the next episode and resume support
+- **Safety filtering** — adult content is filtered by keyword and external adult flags before it reaches the library
+- **Localization** — 10 languages (Arabic, English, French, Spanish, German, Italian, Portuguese, Russian, Chinese, Japanese) with automatic RTL layout for Arabic
+- **Accounts & profiles** — email/password authentication via Supabase, avatar upload via Cloudinary, and a personal library
+- **Discord Rich Presence** — shows the currently watched title, progress, and an in-app "Download the app" button
+- **Automatic updates** — checks GitHub releases on startup, downloads, and installs silently or manually
+- **Protected player** — stream URLs are generated in the main process and delivered AES-encrypted to the renderer
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Desktop shell | Electron 41 |
+| UI | React 19, TypeScript, Vite 8 |
+| Styling | Tailwind CSS 4, custom CSS with CSS variables |
+| Data | TMDB API, Supabase (auth), Cloudinary (media) |
+| State | React Context + Hooks |
+| Internationalization | i18next |
+| Integration | Discord RPC, PeerJS |
+
+## Getting Started
 
 ### Prerequisites
 
@@ -26,7 +47,7 @@ A cinematic streaming desktop application built with **Electron + React**. Brows
 npm install
 ```
 
-### Environment variables
+### Environment Variables
 
 Copy the template and fill in your own values:
 
@@ -34,59 +55,68 @@ Copy the template and fill in your own values:
 cp .env.example .env
 ```
 
-Required keys: Supabase (URL + anon key), TMDB API key, Cloudinary cloud name + API key, Discord application ID, and the GitHub repository that hosts releases (for the updater).
+| Variable | Description |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key |
+| `VITE_TMDB_API_KEY` | TMDB API key |
+| `VITE_CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `VITE_CLOUDINARY_API_KEY` | Cloudinary API key |
+| `VITE_DISCORD_CLIENT_ID` | Discord application ID for Rich Presence |
+| `VITE_UPDATE_GITHUB_REPO` | `owner/repo` hosting release builds (used by the updater) |
 
 ### Development
 
 ```bash
-npm run dev        # Vite dev server (renderer only)
-npm run electron:dev  # Full Electron app in dev mode
+npm run dev          # Renderer in the browser
+npm run electron:dev # Full Electron app in development mode
 ```
 
-### Production build
+### Production Build
 
 ```bash
-npm run typecheck  # TypeScript checks (renderer + Electron main)
-npm run lint       # ESLint
-npm run build      # Production bundle
-npm run dist       # Build + package the Windows installer (NSIS)
+npm run typecheck    # TypeScript checks (renderer + Electron main)
+npm run lint         # ESLint
+npm run build        # Production bundle
+npm run dist         # Build and package the Windows installer (NSIS)
 ```
 
-Installer output goes to `release/<version>/`.
+The installer is written to `release/<version>/`.
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 ├── electron/            # Electron main & preload processes
-│   ├── main.ts          # Window, IPC, Discord RPC, updater, encrypted player URLs
-│   └── preload.ts       # contextBridge API + frame protection
+│   ├── main.ts          # Window management, IPC, Discord RPC, updater, encrypted stream URLs
+│   └── preload.ts       # contextBridge API and frame protection
 ├── src/
-│   ├── components/      # UI components (Dock, Navbar, Hero, Player, modals...)
-│   ├── context/         # Auth context
-│   ├── hooks/           # useDiscordRPC
-│   ├── pages/           # Home, Watch, Details, CategoryPage, Search, MyList, Auth, Legal
-│   ├── services/        # tmdb.ts, supabase.ts, cloudinary.ts
+│   ├── components/      # UI components (Dock, Navbar, Hero, Player, modals, ...)
+│   ├── context/         # Application contexts (Auth)
+│   ├── hooks/           # Shared hooks (Discord RPC)
+│   ├── pages/           # Views (Home, Watch, Details, Category, Search, MyList, Auth, Legal)
+│   ├── services/        # Data services (tmdb, supabase, cloudinary)
 │   ├── types/           # Shared TypeScript types
-│   ├── locales.ts       # All translations (10 languages)
-│   └── i18n.ts          # i18next setup, RTL + font handling
-├── public/              # Static assets & app icons
+│   ├── locales.ts       # Translations for all 10 languages
+│   └── i18n.ts          # i18next setup, RTL and font handling
+├── public/              # Static assets and icons
 ├── scripts/             # Icon generation tooling
 └── index.html
 ```
 
-## 🔐 Security Notes
+## Security
 
-- Never commit the real `.env` — it is git-ignored. Use `.env.example` as the template.
-- The player URL resolver runs **only** in the Electron main process; the renderer receives an AES-encrypted URL.
-- DevTools, context menus, and screenshots of sensitive elements are blocked in the packaged app.
+- The real `.env` is git-ignored; only `.env.example` is committed.
+- The stream URL resolver runs exclusively in the Electron main process; the renderer only receives an AES-encrypted URL.
+- DevTools, context menus, and sensitive screenshots are disabled in packaged builds.
 
-## 📦 Releases & Updates
+## Releases & Updates
 
 1. Bump `version` in `package.json`.
-2. `npm run dist` to produce the NSIS installer.
+2. Run `npm run dist` to produce the NSIS installer.
 3. Upload `release/<version>/OnyxaxCinemaSetup<version>.exe` to a GitHub release named `OnyxaxCinemaSetup<version>`.
-4. Set `VITE_UPDATE_GITHUB_REPO` to `owner/repo` so the in-app updater finds it.
+4. Ensure `VITE_UPDATE_GITHUB_REPO` points to `owner/repo` so the in-app updater can find the release.
 
-## 📄 License
+## License
 
-[MIT](LICENSE)
+MIT — see [LICENSE](LICENSE).
