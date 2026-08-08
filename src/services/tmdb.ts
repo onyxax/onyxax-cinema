@@ -348,11 +348,22 @@ export const fetchRecommendations = async (id: number | string, type: 'movie' | 
   }
 };
 
+export const fetchOverviewInEnglish = async (id: number | string, type: 'movie' | 'tv' | 'anime'): Promise<string> => {
+  try {
+    const tmdbType = type === 'anime' ? 'tv' : type;
+    const { data } = await tmdb.get(`/${tmdbType}/${id}`, { params: { language: 'en' } });
+    return typeof data.overview === 'string' ? data.overview : '';
+  } catch (error) {
+    console.error('fetchOverviewInEnglish error:', error);
+    return '';
+  }
+};
+
 export const fetchImages = async (id: number | string, type: 'movie' | 'tv' | 'anime'): Promise<TMDBImagesResponse> => {
   try {
     const tmdbType = type === 'anime' ? 'tv' : type;
     const currentLang = localStorage.getItem('i18nextLng')?.split('-')[0] || 'en';
-    
+
     // Prioritize current language, then English, then no language (null)
     // This ensures that if localized images don't exist, English ones are fetched
     const imageLangs = currentLang === 'en' ? 'en,null' : `${currentLang},en,null`;

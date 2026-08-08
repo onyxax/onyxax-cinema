@@ -142,7 +142,10 @@ const Home: React.FC = () => {
             const logo = images.logos?.find(l => l.iso_639_1 === uiLang) || 
                          images.logos?.find(l => l.iso_639_1 === 'en') || 
                          images.logos?.[0];
-            return { ...movie, logo_path: logo?.file_path };
+            const overviewEn = movie.overview
+              ? undefined
+              : await fetchOverviewInEnglish(movie.id, movie.media_type || 'movie');
+            return { ...movie, logo_path: logo?.file_path, overview_en: overviewEn };
           })
         );
 
@@ -209,7 +212,10 @@ const Home: React.FC = () => {
         const logo = images.logos?.find(l => l.iso_639_1 === uiLang)
           || images.logos?.find(l => l.iso_639_1 === 'en')
           || images.logos?.[0];
-        return { ...movie, logo_path: logo?.file_path };
+        const overviewEn = movie.overview
+          ? movie.overview_en
+          : await fetchOverviewInEnglish(movie.id, movie.media_type || 'movie');
+        return { ...movie, logo_path: logo?.file_path, overview_en: overviewEn };
       })
     ).then((updated) => {
       if (cancelled || updated.length === 0) return;

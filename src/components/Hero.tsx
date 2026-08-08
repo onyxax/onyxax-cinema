@@ -135,7 +135,7 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
                   <span className="hero-dot" />
                   <span>{(movie as any).media_type === 'tv' ? t('hero.series') : t('hero.film')}</span>
                 </div>
-                <p className="hero-overview">{movie.overview}</p>
+                <p className="hero-overview">{movie.overview || movie.overview_en}</p>
               </div>
               <button className="hero-btn" onClick={handlePlay}>
                 <Play fill="currentColor" size={18} />
