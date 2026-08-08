@@ -6,6 +6,7 @@ import type { TMDBDetails, TMDBMovie, TMDBCast, TMDBEpisode } from '../types/tmd
 import { useTranslation } from 'react-i18next';
 import ContentRow from '../components/ContentRow';
 import Loading from '../components/Loading';
+import LogoImage from '../components/LogoImage';
 import './Details.css';
 
 const Details: React.FC = () => {
@@ -291,10 +292,11 @@ const Details: React.FC = () => {
         
         <div className="details-hero-content">
           {logoPath ? (
-            <img 
-              src={`${LOGO_BASE_URL}${logoPath}`} 
-              alt={item.title || item.name} 
+            <LogoImage
+              src={`${LOGO_BASE_URL}${logoPath}`}
+              alt={item.title || item.name}
               className="details-logo"
+              fallback={showFallbackTitle && <h1 className="details-title">{item.title || item.name}</h1>}
             />
           ) : (
             showFallbackTitle && <h1 className="details-title">{item.title || item.name}</h1>

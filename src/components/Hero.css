@@ -40,6 +40,9 @@
   max-height: 96px; max-width: 100%; height: auto; margin-bottom: 10px;
   object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
 }
+.hero-logo.dark {
+  filter: brightness(0) invert(1) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+}
 
 .hero-info {
   display: flex; align-items: center; gap: 8px; margin-bottom: 14px;

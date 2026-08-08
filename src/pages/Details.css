@@ -46,6 +46,7 @@
 .details-title { font-size: 2.6rem; font-weight: 700; margin-bottom: 16px; color: var(--foreground); line-height: 1.1; }
 
 .details-logo { max-width: 280px; max-height: 90px; object-fit: contain; margin-bottom: 20px; }
+.details-logo.dark { filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55)); }
 
 .details-meta {
   display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
