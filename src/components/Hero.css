@@ -36,6 +36,11 @@
   color: var(--foreground); line-height: 1.1;
 }
 
+.hero-logo {
+  max-height: 96px; max-width: 100%; height: auto; margin-bottom: 10px;
+  object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+}
+
 .hero-info {
   display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
   font-size: 0.85rem; font-weight: 500; color: var(--muted-foreground);
@@ -76,6 +81,7 @@
   .hero { height: 55vh; }
   .hero-content { padding-bottom: 70px; }
   .hero-title { font-size: 2rem; }
+  .hero-logo { max-height: 60px; }
   .hero-overview { font-size: 0.85rem; max-width: 100%; }
   .hero-btn { padding: 8px 20px; font-size: 0.8rem; }
   .hero-dots { bottom: 40px; }

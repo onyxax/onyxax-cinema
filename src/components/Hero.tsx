@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { LOGO_BASE_URL } from '../services/tmdb';
 import './Hero.css';
 
 interface HeroProps {
@@ -16,6 +17,7 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isAnimating, setIsAnimating] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+  const [failedLogos, setFailedLogos] = useState<Record<number, boolean>>({});
 
   const handleNext = useCallback(() => {
     if (isAnimating) return;
@@ -67,7 +69,17 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
 
             <div className="hero-content">
               <div className="hero-text">
-                <h1 className="hero-title">{movie.title || movie.name}</h1>
+                {movie.logo_path && !failedLogos[movie.id] ? (
+                  <img
+                    src={`${LOGO_BASE_URL}${movie.logo_path}`}
+                    alt={movie.title || movie.name}
+                    className="hero-logo"
+                    decoding="async"
+                    onError={() => setFailedLogos(prev => ({ ...prev, [movie.id]: true }))}
+                  />
+                ) : (
+                  <h1 className="hero-title">{movie.title || movie.name}</h1>
+                )}
                 <div className="hero-info">
                   <span>{movie.release_date?.split('-')[0] || movie.first_air_date?.split('-')[0] || ''}</span>
                   <span className="hero-dot" />
