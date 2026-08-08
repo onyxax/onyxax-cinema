@@ -68,10 +68,6 @@ const Home: React.FC = () => {
     const t = getInitialCache('/trending/all/week');
     return Array.isArray(t) ? t.filter((m: any) => m.backdrop_path || m.poster_path).slice(0, 5) : [];
   });
-  const featuredMoviesRef = useRef(featuredMovies);
-  useEffect(() => {
-    featuredMoviesRef.current = featuredMovies;
-  });
   const [movies, setMovies] = useState<TMDBMovie[]>(() => homeSessionCache?.movies || getInitialCache('/discover/movie', {
     include_adult: false,
     page: 1,
@@ -113,6 +109,7 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     const loadData = async () => {
       try {
         const [trendingData, todayData, ratedData, moviesData, tvData, animeData, platformData] = await Promise.all([
@@ -124,6 +121,7 @@ const Home: React.FC = () => {
           fetchAnime(undefined, 'popularity.desc', 100),
           fetchByNetwork(activePlatform.id)
         ]);
+        if (cancelled) return;
 
         const filterSafe = (data: TMDBMovie[]) => data.filter(m => !m.adult);
 
@@ -148,6 +146,7 @@ const Home: React.FC = () => {
             return { ...movie, logo_path: logo?.file_path, overview_en: overviewEn };
           })
         );
+        if (cancelled) return;
 
         const featuredBase = featuredWithLogos.length > 0 ? featuredWithLogos : withImages;
         setFeaturedMovies(prev => featuredBase.length > 0 ? featuredBase : prev);
@@ -186,45 +185,17 @@ const Home: React.FC = () => {
       } catch (error) {
         console.error('Error loading home data:', error);
       } finally {
-        setIsInitialLoading(false);
+        if (!cancelled) setIsInitialLoading(false);
       }
     };
 
     loadData();
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const uiLang = i18n.language?.split('-')[0] || 'en';
-    let base = featuredMoviesRef.current;
-    if (base.length === 0) {
-      const cachedTrending = getInitialCache('/trending/all/week');
-      base = Array.isArray(cachedTrending)
-        ? cachedTrending.filter((m: any) => m.backdrop_path || m.poster_path).slice(0, 5)
-        : [];
-    }
-    if (base.length === 0) return;
-    Promise.all(
-      base.slice(0, 5).map(async (movie) => {
-        const images = await fetchImages(movie.id, movie.media_type || 'movie');
-        if (cancelled) return movie;
-        const logo = images.logos?.find(l => l.iso_639_1 === uiLang)
-          || images.logos?.find(l => l.iso_639_1 === 'en')
-          || images.logos?.[0];
-        const overviewEn = movie.overview
-          ? movie.overview_en
-          : await fetchOverviewInEnglish(movie.id, movie.media_type || 'movie');
-        return { ...movie, logo_path: logo?.file_path, overview_en: overviewEn };
-      })
-    ).then((updated) => {
-      if (cancelled || updated.length === 0) return;
-      setFeaturedMovies(updated);
-      homeSessionCache.featuredMovies = updated;
-      localStorage.setItem('onyxax_featured_with_logos', JSON.stringify(updated));
-    }).catch(() => {});
     return () => { cancelled = true; };
   }, [i18n.language]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const mainContent = document.querySelector('.main-content');
