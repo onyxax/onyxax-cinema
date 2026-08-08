@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -19,22 +19,32 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
   const [isAnimating, setIsAnimating] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
   const [backdropErrors, setBackdropErrors] = useState<Record<number, number>>({});
+  const imageTimers = useRef<Map<string, number>>(new Map());
+
+  const safeIndex = currentIndex % movies.length;
+  if (currentIndex !== safeIndex) setCurrentIndex(safeIndex);
 
   const handleNext = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || movies.length === 0) return;
     setIsAnimating(true);
-    const nextIndex = (currentIndex + 1) % movies.length;
+    const nextIndex = (safeIndex + 1) % movies.length;
     setCurrentIndex(nextIndex);
     onIndexChange?.(nextIndex);
     setTimeout(() => setIsAnimating(false), 800);
-  }, [isAnimating, movies.length, currentIndex, onIndexChange]);
+  }, [isAnimating, movies.length, safeIndex, onIndexChange]);
 
   useEffect(() => {
     const timer = setInterval(handleNext, 10000);
     return () => clearInterval(timer);
   }, [handleNext]);
 
-  const handleImageLoad = (id: number) => {
+  const handleImageLoad = (id: number, level: number) => {
+    const key = `${id}-${level}`;
+    const timer = imageTimers.current.get(key);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      imageTimers.current.delete(key);
+    }
     setLoadedImages(prev => ({ ...prev, [id]: true }));
   };
 
@@ -50,9 +60,31 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
     return null;
   };
 
+  useEffect(() => {
+    movies.forEach(movie => {
+      if (!movie?.id || loadedImages[movie.id]) return;
+      const level = backdropErrors[movie.id] || 0;
+      const backdrop = movie.backdrop_path || movie.poster_path;
+      const hasSource = (level === 0 && backdrop)
+        || (level === 1 && movie.poster_path && movie.poster_path !== movie.backdrop_path);
+      if (!hasSource) return;
+      const key = `${movie.id}-${level}`;
+      if (imageTimers.current.has(key)) return;
+      const timer = window.setTimeout(() => {
+        setBackdropErrors(prev => ({ ...prev, [movie.id]: (prev[movie.id] || 0) + 1 }));
+      }, 8000);
+      imageTimers.current.set(key, timer);
+    });
+  }, [movies, loadedImages, backdropErrors]);
+
+  useEffect(() => () => {
+    imageTimers.current.forEach(timer => clearTimeout(timer));
+    imageTimers.current.clear();
+  }, []);
+
   if (movies.length === 0) return <div className="hero-placeholder" />;
 
-  const currentMovie = movies[currentIndex];
+  const currentMovie = movies[safeIndex];
 
   const handlePlay = () => {
     navigate(`/watch/${currentMovie.media_type || 'movie'}/${currentMovie.id}`);
@@ -63,12 +95,12 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
       <div
         className="hero-slides-container"
         style={{
-          transform: `translateX(-${currentIndex * 100}%)`,
+          transform: `translateX(-${safeIndex * 100}%)`,
           transition: 'transform 1s cubic-bezier(0.23, 1, 0.32, 1)'
         }}
       >
         {movies.map((movie, index) => (
-          <div key={movie.id} className={`hero-slide ${index === currentIndex ? 'active' : ''}`}>
+          <div key={movie.id} className={`hero-slide ${index === safeIndex ? 'active' : ''}`}>
             <div className="hero-backdrop">
               {backdropSource(movie) ? (
                 <img
@@ -77,7 +109,7 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
                   alt={backdropSource(movie)!.alt}
                   decoding="async"
                   className={`hero-image ${loadedImages[movie.id] ? 'img-loaded' : ''}`}
-                  onLoad={() => handleImageLoad(movie.id)}
+                  onLoad={() => handleImageLoad(movie.id, backdropErrors[movie.id] || 0)}
                   onError={() => setBackdropErrors(prev => ({ ...prev, [movie.id]: (prev[movie.id] || 0) + 1 }))}
                 />
               ) : (
@@ -118,7 +150,7 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
         {movies.map((_, index) => (
           <button
             key={index}
-            className={`hero-dot ${index === currentIndex ? 'active' : ''}`}
+            className={`hero-dot ${index === safeIndex ? 'active' : ''}`}
             onClick={() => {
               setCurrentIndex(index);
               onIndexChange?.(index);

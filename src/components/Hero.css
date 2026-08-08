@@ -86,7 +86,17 @@
 }
 .hero-dot.active { background: var(--primary); width: 34px; }
 
-.hero-placeholder { height: 70vh; background: var(--muted); }
+.hero-placeholder {
+  height: 70vh;
+  background: linear-gradient(135deg, #1b1e26 0%, #101218 55%, #0a0b10 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero-placeholder::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(227, 168, 60, 0.05), transparent 60%);
+}
 
 @media (max-width: 768px) {
   .hero { height: 55vh; }

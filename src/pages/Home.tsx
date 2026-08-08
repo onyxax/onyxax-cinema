@@ -59,9 +59,18 @@ const Home: React.FC = () => {
   const [featuredMovies, setFeaturedMovies] = useState<TMDBMovie[]>(() => {
     if (homeSessionCache?.featuredMovies) return homeSessionCache.featuredMovies;
     const cachedFeatured = localStorage.getItem('onyxax_featured_with_logos');
-    if (cachedFeatured) return JSON.parse(cachedFeatured);
+    if (cachedFeatured) {
+      try {
+        const parsed = JSON.parse(cachedFeatured);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch { /* ignore */ }
+    }
     const t = getInitialCache('/trending/all/week');
     return Array.isArray(t) ? t.filter((m: any) => m.backdrop_path || m.poster_path).slice(0, 5) : [];
+  });
+  const featuredMoviesRef = useRef(featuredMovies);
+  useEffect(() => {
+    featuredMoviesRef.current = featuredMovies;
   });
   const [movies, setMovies] = useState<TMDBMovie[]>(() => homeSessionCache?.movies || getInitialCache('/discover/movie', {
     include_adult: false,
@@ -124,7 +133,7 @@ const Home: React.FC = () => {
         const filteredMovies = filterSafe(moviesData);
         const filteredTV = filterSafe(tvData);
 
-        const withImages = filteredTrending.filter(m => m.backdrop_path || m.poster_path);
+        const withImages = [...new Map(filteredTrending.filter(m => m.backdrop_path || m.poster_path).map(m => [m.id, m])).values()];
 
         const featuredWithLogos = await Promise.all(
           withImages.slice(0, 5).map(async (movie) => {
@@ -137,8 +146,13 @@ const Home: React.FC = () => {
           })
         );
 
-        setFeaturedMovies(featuredWithLogos);
-        localStorage.setItem('onyxax_featured_with_logos', JSON.stringify(featuredWithLogos));
+        const featuredBase = featuredWithLogos.length > 0 ? featuredWithLogos : withImages;
+        setFeaturedMovies(prev => featuredBase.length > 0 ? featuredBase : prev);
+        if (featuredBase.length > 0) {
+          localStorage.setItem('onyxax_featured_with_logos', JSON.stringify(featuredBase));
+        } else {
+          localStorage.removeItem('onyxax_featured_with_logos');
+        }
         setTrending(filteredTrending);
         setTrendingToday(filteredToday);
         setTopRated(filteredRated);
@@ -147,15 +161,15 @@ const Home: React.FC = () => {
         setAnime(animeData.slice(0, 20));
         setPlatformContent(platformData);
 
-        homeSessionCache = {
-          trending: filteredTrending,
-          trendingToday: filteredToday,
-          topRated: filteredRated,
-          movies: filteredMovies,
-          tvShows: filteredTV,
-          anime: animeData,
-          featuredMovies: featuredWithLogos
-        };
+          homeSessionCache = {
+            trending: filteredTrending,
+            trendingToday: filteredToday,
+            topRated: filteredRated,
+            movies: filteredMovies,
+            tvShows: filteredTV,
+            anime: animeData,
+            featuredMovies: featuredBase
+          };
 
         const allItems = [...withImages, ...movies, ...tvShows, ...animeData].slice(0, 30);
         allItems.forEach(m => {
@@ -178,11 +192,18 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (featuredMovies.length === 0) return;
     let cancelled = false;
     const uiLang = i18n.language?.split('-')[0] || 'en';
+    let base = featuredMoviesRef.current;
+    if (base.length === 0) {
+      const cachedTrending = getInitialCache('/trending/all/week');
+      base = Array.isArray(cachedTrending)
+        ? cachedTrending.filter((m: any) => m.backdrop_path || m.poster_path).slice(0, 5)
+        : [];
+    }
+    if (base.length === 0) return;
     Promise.all(
-      featuredMovies.slice(0, 5).map(async (movie) => {
+      base.slice(0, 5).map(async (movie) => {
         const images = await fetchImages(movie.id, movie.media_type || 'movie');
         if (cancelled) return movie;
         const logo = images.logos?.find(l => l.iso_639_1 === uiLang)
@@ -191,8 +212,9 @@ const Home: React.FC = () => {
         return { ...movie, logo_path: logo?.file_path };
       })
     ).then((updated) => {
-      if (cancelled) return;
+      if (cancelled || updated.length === 0) return;
       setFeaturedMovies(updated);
+      homeSessionCache.featuredMovies = updated;
       localStorage.setItem('onyxax_featured_with_logos', JSON.stringify(updated));
     }).catch(() => {});
     return () => { cancelled = true; };
