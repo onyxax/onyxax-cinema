@@ -13,6 +13,14 @@
 .hero-slide { position: relative; flex: 0 0 100%; width: 100%; height: 100%; overflow: hidden; }
 
 .hero-backdrop { position: absolute; inset: 0; overflow: hidden; background: var(--muted); }
+.hero-backdrop-fallback {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #1b1e26 0%, #101218 55%, #0a0b10 100%);
+}
+.hero-backdrop-fallback::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(227, 168, 60, 0.06), transparent 60%);
+}
 .hero-image { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.6s ease; }
 .hero-image.img-loaded { opacity: 1; }
 

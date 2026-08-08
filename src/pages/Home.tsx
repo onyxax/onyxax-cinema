@@ -178,6 +178,27 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (featuredMovies.length === 0) return;
+    let cancelled = false;
+    const uiLang = i18n.language?.split('-')[0] || 'en';
+    Promise.all(
+      featuredMovies.slice(0, 5).map(async (movie) => {
+        const images = await fetchImages(movie.id, movie.media_type || 'movie');
+        if (cancelled) return movie;
+        const logo = images.logos?.find(l => l.iso_639_1 === uiLang)
+          || images.logos?.find(l => l.iso_639_1 === 'en')
+          || images.logos?.[0];
+        return { ...movie, logo_path: logo?.file_path };
+      })
+    ).then((updated) => {
+      if (cancelled) return;
+      setFeaturedMovies(updated);
+      localStorage.setItem('onyxax_featured_with_logos', JSON.stringify(updated));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [i18n.language]);
+
+  useEffect(() => {
     const mainContent = document.querySelector('.main-content');
     if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'instant' });
   }, []);

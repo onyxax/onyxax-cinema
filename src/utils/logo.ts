@@ -48,4 +48,4 @@ export const analyzeImageTone = (img: HTMLImageElement, size = 48): Promise<Imag
 };
 
 export const isDarkLogo = (tone: ImageTone): boolean =>
-  tone.luminance < 0.5 && tone.saturation < 0.18;
+  tone.luminance < 0.6 && tone.saturation < 0.22;

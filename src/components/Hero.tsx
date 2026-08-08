@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { LOGO_BASE_URL } from '../services/tmdb';
+import { LOGO_BASE_URL, IMAGE_BASE_URL } from '../services/tmdb';
 import LogoImage from './LogoImage';
 import './Hero.css';
 
@@ -18,6 +18,7 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isAnimating, setIsAnimating] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+  const [backdropErrors, setBackdropErrors] = useState<Record<number, number>>({});
 
   const handleNext = useCallback(() => {
     if (isAnimating) return;
@@ -35,6 +36,18 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
 
   const handleImageLoad = (id: number) => {
     setLoadedImages(prev => ({ ...prev, [id]: true }));
+  };
+
+  const backdropSource = (movie: any): { src: string; alt: string } | null => {
+    const level = backdropErrors[movie.id] || 0;
+    const backdrop = movie.backdrop_path || movie.poster_path;
+    if (level === 0 && backdrop) {
+      return { src: `${IMAGE_BASE_URL}${backdrop}`, alt: movie.title || movie.name };
+    }
+    if (level === 1 && movie.poster_path && movie.poster_path !== movie.backdrop_path) {
+      return { src: `${IMAGE_BASE_URL}${movie.poster_path}`, alt: movie.title || movie.name };
+    }
+    return null;
   };
 
   if (movies.length === 0) return <div className="hero-placeholder" />;
@@ -57,13 +70,19 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
         {movies.map((movie, index) => (
           <div key={movie.id} className={`hero-slide ${index === currentIndex ? 'active' : ''}`}>
             <div className="hero-backdrop">
-              <img
-                src={`https://image.tmdb.org/t/p/original${movie.backdrop_path || movie.poster_path}`}
-                alt={movie.title || movie.name}
-                decoding="async"
-                className={`hero-image ${loadedImages[movie.id] ? 'img-loaded' : ''}`}
-                onLoad={() => handleImageLoad(movie.id)}
-              />
+              {backdropSource(movie) ? (
+                <img
+                  key={`${movie.id}-${backdropErrors[movie.id] || 0}`}
+                  src={backdropSource(movie)!.src}
+                  alt={backdropSource(movie)!.alt}
+                  decoding="async"
+                  className={`hero-image ${loadedImages[movie.id] ? 'img-loaded' : ''}`}
+                  onLoad={() => handleImageLoad(movie.id)}
+                  onError={() => setBackdropErrors(prev => ({ ...prev, [movie.id]: (prev[movie.id] || 0) + 1 }))}
+                />
+              ) : (
+                <div className="hero-backdrop-fallback" />
+              )}
               <div className="hero-gradient" />
             </div>
 
