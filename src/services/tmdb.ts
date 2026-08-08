@@ -57,7 +57,7 @@ const getCached = async (url: string, config?: any) => {
     ...config,
     params: {
       ...config?.params,
-      language: currentLang,
+      language: config?.params?.language ?? currentLang,
       include_adult: false,
     }
   };
@@ -124,9 +124,9 @@ export const prefetchImage = (url: string) => {
   img.src = url;
 };
 
-export const fetchTrending = async (type: 'movie' | 'tv' | 'all' = 'all'): Promise<TMDBMovie[]> => {
+export const fetchTrending = async (type: 'movie' | 'tv' | 'all' = 'all', language?: string): Promise<TMDBMovie[]> => {
   try {
-    const { data } = await getCached(`/trending/${type}/week`);
+    const { data } = await getCached(`/trending/${type}/week`, language ? { params: { language } } : undefined);
     return data.results.filter(isSafe);
   } catch (error) {
     console.error('fetchTrending error:', error);

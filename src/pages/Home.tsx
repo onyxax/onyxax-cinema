@@ -133,12 +133,14 @@ const Home: React.FC = () => {
 
         const withImages = [...new Map(filteredTrending.filter(m => m.backdrop_path || m.poster_path).map(m => [m.id, m])).values()];
 
+        const trendingEn = await fetchTrending('all', 'en');
+        const withImagesEn = [...new Map(trendingEn.filter(m => m.backdrop_path || m.poster_path).map(m => [m.id, m])).values()];
+        const featuredSource = withImagesEn.length > 0 ? withImagesEn : withImages;
+
         const featuredWithLogos = await Promise.all(
-          withImages.slice(0, 5).map(async (movie) => {
+          featuredSource.slice(0, 5).map(async (movie) => {
             const images = await fetchImages(movie.id, movie.media_type || 'movie');
-            const uiLang = i18n.language?.split('-')[0] || 'en';
-            const logo = images.logos?.find(l => l.iso_639_1 === uiLang) || 
-                         images.logos?.find(l => l.iso_639_1 === 'en') || 
+            const logo = images.logos?.find(l => l.iso_639_1 === 'en') ||
                          images.logos?.[0];
             const overviewEn = movie.overview
               ? undefined
