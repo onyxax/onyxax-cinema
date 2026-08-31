@@ -1,0 +1,131 @@
+/* ==========================================================
+   RTL overrides — activated when <html dir="rtl"> (Arabic)
+   Mirrors layout: gradients, shadows, alignments, paddings,
+   scroll buttons and side indicators.
+   ========================================================== */
+
+/* Keep hero slide order stable — only inner content flips */
+[dir="rtl"] .hero-slides-container { direction: ltr; }
+[dir="rtl"] .hero-slide { direction: rtl; }
+
+/* Hero — gradient shading flips from right → left */
+[dir="rtl"] .hero-gradient {
+  background: linear-gradient(to left, var(--background) 0%, color-mix(in srgb, var(--background) 50%, transparent) 20%, transparent 45%),
+              linear-gradient(to top, var(--background) 0%, transparent 40%);
+}
+[dir="rtl"] .hero-content {
+  align-items: flex-end;
+  text-align: right;
+}
+[dir="rtl"] .hero-text { text-align: right; }
+[dir="rtl"] .hero-info { justify-content: flex-end; }
+[dir="rtl"] .hero-overview { text-align: right; }
+[dir="rtl"] .hero-dots {
+  right: auto;
+  left: 5%;
+}
+[dir="rtl"] .hero-backdrop-fallback::after {
+  background: radial-gradient(circle at 70% 40%, rgba(227, 168, 60, 0.06), transparent 60%);
+}
+[dir="rtl"] .hero-placeholder::after {
+  background: radial-gradient(circle at 70% 40%, rgba(227, 168, 60, 0.05), transparent 60%);
+}
+
+/* Content rows */
+[dir="rtl"] .row-title {
+  padding-left: 0;
+  padding-right: 4%;
+}
+[dir="rtl"] .scroll-btn.left {
+  left: auto;
+  right: 12px;
+}
+[dir="rtl"] .scroll-btn.right {
+  right: auto;
+  left: 12px;
+}
+
+/* Dock — active indicator & tooltips flip */
+[dir="rtl"] .dock-space.active::before {
+  left: auto;
+  right: -8px;
+}
+[dir="rtl"] .dock-tooltip {
+  left: auto;
+  right: calc(100% + 10px);
+}
+@keyframes tooltip-in-rtl {
+  from { opacity: 0; transform: translateY(-50%) translateX(3px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+[dir="rtl"] .dock.collapsed .dock-space:hover .dock-tooltip {
+  animation-name: tooltip-in-rtl;
+}
+[dir="rtl"] .dock-user-info { align-items: flex-end; }
+[dir="rtl"] .dock-pinned-count { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .dock-pinned-header { flex-direction: row-reverse; }
+
+/* App — platform & layout */
+[dir="rtl"] .platform-menu {
+  left: auto;
+  right: 0;
+}
+[dir="rtl"] .brand-small { margin-right: 0; margin-left: 4px; }
+[dir="rtl"] .home-dash-grid-line {
+  background: linear-gradient(to left, transparent, var(--border) 30%, var(--border) 70%, transparent);
+}
+[dir="rtl"] .home-section-panel .home-dash-subdivider {
+  padding-left: 0;
+  padding-right: calc(4% + 14px);
+}
+[dir="rtl"] .home-dash-subdivider::before {
+  margin-left: 0;
+}
+[dir="rtl"] .back-to-top {
+  right: auto;
+  left: 24px;
+}
+
+/* Index / global */
+[dir="rtl"] .rank-badge {
+  left: auto;
+  right: 0;
+}
+[dir="rtl"] .back-btn-fixed,
+[dir="rtl"] .back-btn {
+  left: auto;
+  right: 20px;
+}
+[dir="rtl"] .back-btn-fixed { right: 40px; }
+
+/* Details */
+[dir="rtl"] .details-hero-content {
+  text-align: right;
+}
+[dir="rtl"] .details-meta { justify-content: flex-end; }
+[dir="rtl"] .details-buttons { justify-content: flex-end; }
+[dir="rtl"] .details-overview { text-align: right; }
+[dir="rtl"] .section-header { flex-direction: row-reverse; }
+[dir="rtl"] .episode-number {
+  left: auto;
+  right: 4px;
+}
+[dir="rtl"] .episode-top { flex-direction: row-reverse; }
+
+/* Filters & dropdowns */
+[dir="rtl"] .filter-label { padding-left: 0; padding-right: 2px; }
+[dir="rtl"] .select-options,
+[dir="rtl"] .season-dropdown-menu,
+[dir="rtl"] .filter-dropdown,
+[dir="rtl"] .category-dropdown {
+  left: auto;
+  right: 0;
+}
+
+/* Movie card remove button already right — stays right in RTL, fine */
+
+/* General logical fixes — text alignment for RTL */
+[dir="rtl"] body { text-align: right; }
+[dir="rtl"] .footer-links { flex-direction: row-reverse; }
+
+/* Scrollbars — keep same, but row scrolling starts from right naturally in RTL */
