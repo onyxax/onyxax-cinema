@@ -1,7 +1,7 @@
 # Onyxax Cinema
 
 <p align="center">
-  <img src="public/favicon.svg" alt="Onyxax Cinema" width="128" height="128">
+  <img src="public/AppIcon256.png" alt="Onyxax Cinema" width="128" height="128">
 </p>
 
 <p align="center">
@@ -10,28 +10,21 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/onyxax/onyxax-cinema/actions"><img src="https://img.shields.io/github/actions/workflow/status/onyxax/onyxax-cinema/ci.yml?branch=main&label=CI&style=flat&logo=github&logoColor=white&labelColor=111827&color=d97757&cacheSeconds=3600" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-111827?style=flat&labelColor=111827&color=d97757&logo=opensourceinitiative&logoColor=white&cacheSeconds=3600" alt="License"></a>
-  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-%3E%3D22-111827?style=flat&labelColor=111827&color=339933&logo=nodedotjs&logoColor=white&cacheSeconds=3600" alt="Node"></a>
-  <a href="https://github.com/onyxax/onyxax-cinema/releases"><img src="https://img.shields.io/github/package-json/v/onyxax/onyxax-cinema?label=Version&style=flat&labelColor=111827&color=d97757&logo=semanticrelease&logoColor=white&cacheSeconds=3600" alt="Version"></a>
+  <img src="public/preview.png" alt="Onyxax Cinema Preview" width="860">
 </p>
 
 <p align="center">
-  <a href="https://github.com/onyxax/onyxax-cinema/releases/latest"><img src="https://img.shields.io/github/v/release/onyxax/onyxax-cinema?label=Download%20for%20Windows&style=for-the-badge&logo=windows&logoColor=white&labelColor=111827&color=d97757" alt="Download for Windows"></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/onyxax/onyxax-cinema/releases">Releases</a> •
-  <a href="https://github.com/onyxax/onyxax-cinema/issues">Issues</a> •
-  <a href="#download">Download</a> •
-  <a href="#getting-started">For Developers</a>
+  <a href="https://github.com/onyxax/onyxax-cinema/releases" style="display:inline-block; padding:9px 18px; margin:4px; background:#111827; color:#fff; border-radius:8px; text-decoration:none; font-weight:600; font-size:13px; border:1px solid #1f2937;">Releases</a>
+  <a href="https://github.com/onyxax/onyxax-cinema/issues" style="display:inline-block; padding:9px 18px; margin:4px; background:#111827; color:#fff; border-radius:8px; text-decoration:none; font-weight:600; font-size:13px; border:1px solid #1f2937;">Issues</a>
+  <a href="#download" style="display:inline-block; padding:9px 18px; margin:4px; background:#d97757; color:#fff; border-radius:8px; text-decoration:none; font-weight:700; font-size:13px; border:1px solid #d97757;">Download</a>
+  <a href="#getting-started" style="display:inline-block; padding:9px 18px; margin:4px; background:#fff; color:#111827; border-radius:8px; text-decoration:none; font-weight:600; font-size:13px; border:1px solid #e5e7eb;">For Developers</a>
 </p>
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/list.svg" width="18" height="18" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Quick Navigation
+## <img src="https://api.iconify.design/lucide:list.svg?color=%23d97757" width="18" height="18" style="vertical-align:-4px; display:inline-block"> Quick Navigation
 
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/users.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> **For Everyone** | <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/code-2.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> **For Developers** |
+| <img src="https://api.iconify.design/lucide:users.svg?color=%23d97757" width="16" height="16" style="vertical-align:-2px; display:inline-block"> **For Everyone** | <img src="https://api.iconify.design/lucide:code-2.svg?color=%23d97757" width="16" height="16" style="vertical-align:-2px; display:inline-block"> **For Developers** |
 | :--- | :--- |
 | [Download](#download) — Get the app in 3 clicks | [Getting Started](#getting-started) — Run the code locally |
 | [Features](#features) — What you can watch & do | [Project Structure](#project-structure) — How the code is organized |
@@ -39,7 +32,8 @@
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/book-open.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Overview
+<a id="overview"></a>
+## <img src="https://api.iconify.design/lucide:book-open.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Overview
 
 **Onyxax Cinema** aggregates **movies**, **TV series**, and **anime** into a single, beautifully crafted desktop interface.
 
@@ -51,35 +45,37 @@
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/sparkles.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Features
+<a id="features"></a>
+## <img src="https://api.iconify.design/lucide:sparkles.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Features
 
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/layout-grid.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | Feature | Details |
+| <img src="https://api.iconify.design/lucide:layout-grid.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> | Feature | Details |
 | :---: | :--- | :--- |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/film.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Catalog** | Movies, TV series & anime with posters, ratings, trailers & recommendations via **TMDB API** |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/play.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Multi-Server Playback** | Multiple providers, **autoplay next episode**, resume from last position |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/shield.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Safety Filtering** | Keyword blocklist + `adult` flags + **AniList** adult verification for anime |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/globe.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Localization** | **10 languages** — `ar` `en` `fr` `es` `de` `it` `pt` `ru` `zh` `ja` • Auto `RTL` for Arabic & `Tajawal` font |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/users.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Accounts & Profiles** | Email/password auth via **Supabase**, avatar upload via **Cloudinary**, personal library |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/gamepad-2.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Discord Rich Presence** | Live title, `S01E05 • 57% • 19m left`, poster as `large_image`, app logo as permanent `small_image` |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/refresh-cw.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Automatic Updates** | Checks **GitHub Releases** on startup, downloads & installs **silently or manually** |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/lock.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Protected Player** | URLs generated in `main.ts`, never exposed in renderer source |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/monitor.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> | **Designed for Windows** | **NSIS** installer, silent-update support — *Windows 10/11* |
+| <img src="https://api.iconify.design/lucide:film.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Catalog** | Movies, TV series & anime with posters, ratings, trailers & recommendations via **TMDB API** |
+| <img src="https://api.iconify.design/lucide:play.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Multi-Server Playback** | Multiple providers, **autoplay next episode**, resume from last position |
+| <img src="https://api.iconify.design/lucide:shield.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Safety Filtering** | Keyword blocklist + `adult` flags + **AniList** adult verification for anime |
+| <img src="https://api.iconify.design/lucide:globe.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Localization** | **10 languages** — `ar` `en` `fr` `es` `de` `it` `pt` `ru` `zh` `ja` • Auto `RTL` for Arabic & `Tajawal` font |
+| <img src="https://api.iconify.design/lucide:users.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Accounts & Profiles** | Email/password auth via **Supabase**, avatar upload via **Cloudinary**, personal library |
+| <img src="https://api.iconify.design/lucide:gamepad-2.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Discord Rich Presence** | Live title, `S01E05 • 57% • 19m left`, poster as `large_image`, app logo as permanent `small_image` |
+| <img src="https://api.iconify.design/lucide:refresh-cw.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Automatic Updates** | Checks **GitHub Releases** on startup, downloads & installs **silently or manually** |
+| <img src="https://api.iconify.design/lucide:lock.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Protected Player** | URLs generated in `main.ts`, never exposed in renderer source |
+| <img src="https://api.iconify.design/lucide:monitor.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> | **Designed for Windows** | **NSIS** installer, silent-update support — *Windows 10/11* |
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/download.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Download
+<a id="download"></a>
+## <img src="https://api.iconify.design/lucide:download.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Download
 
 <p align="center">
-  <a href="https://github.com/onyxax/onyxax-cinema/releases/latest"><img src="https://img.shields.io/github/v/release/onyxax/onyxax-cinema?label=Download%20for%20Windows&style=for-the-badge&logo=windows&logoColor=white&labelColor=111827&color=d97757" alt="Download for Windows"></a>
+  <a href="https://github.com/onyxax/onyxax-cinema/releases/latest"><img src="https://img.shields.io/badge/Download%20for%20Windows-1.2.9-111827?style=for-the-badge&labelColor=111827&color=d97757&logo=windows&logoColor=white" alt="Download for Windows"></a>
 </p>
 
 **3 steps to watch:**
 
 | Step | What to do | |
 | :---: | :--- | :---: |
-| **1** | Click the big **Download for Windows** button above | <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/mouse-pointer-click.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> |
-| **2** | Open the downloaded `OnyxaxCinemaSetup1.2.9.exe` and click **Next → Install** | <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/package-open.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> |
-| **3** | Open **Onyxax Cinema** from Desktop/Start and start watching | <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/play.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> |
+| **1** | Click the big **Download for Windows** button above | <img src="https://api.iconify.design/lucide:mouse-pointer-click.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
+| **2** | Open the downloaded `OnyxaxCinemaSetup1.2.9.exe` and click **Next → Install** | <img src="https://api.iconify.design/lucide:package-open.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
+| **3** | Open **Onyxax Cinema** from Desktop/Start and start watching | <img src="https://api.iconify.design/lucide:play.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
 
 - **System:** Windows 10 / 11 (64-bit) — no extra setup.
 - **Updates:** The app checks on startup and can update silently — you don't need to do anything.
@@ -96,17 +92,18 @@
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/layers.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Tech Stack
+<a id="tech-stack"></a>
+## <img src="https://api.iconify.design/lucide:layers.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Tech Stack
 
 | Layer | Technology |
 | :--- | :--- |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/monitor.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> Desktop Shell | **Electron 41** |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/atom.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> UI | **React 19** + **TypeScript** + **Vite 8** |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/palette.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> Styling | **Tailwind CSS 4** + CSS variables |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/database.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> Data | **TMDB API** • **Supabase** (auth) • **Cloudinary** (media) |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/share-2.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> State | **React Context + Hooks** |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/languages.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> i18n | **i18next** • 10 locales • RTL handling |
-| <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/plug.svg" width="14" height="14" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%)"> Integrations | **Discord RPC** • **PeerJS** |
+| <img src="https://api.iconify.design/lucide:monitor.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> Desktop Shell | **Electron 41** |
+| <img src="https://api.iconify.design/lucide:atom.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> UI | **React 19** + **TypeScript** + **Vite 8** |
+| <img src="https://api.iconify.design/lucide:palette.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> Styling | **Tailwind CSS 4** + CSS variables |
+| <img src="https://api.iconify.design/lucide:database.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> Data | **TMDB API** • **Supabase** (auth) • **Cloudinary** (media) |
+| <img src="https://api.iconify.design/lucide:share-2.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> State | **React Context + Hooks** |
+| <img src="https://api.iconify.design/lucide:languages.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> i18n | **i18next** • 10 locales • RTL handling |
+| <img src="https://api.iconify.design/lucide:plug.svg?color=%23d97757" width="14" height="14" style="vertical-align:-4px; display:inline-block"> Integrations | **Discord RPC** • **PeerJS** |
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=electron,react,ts,vite,tailwind,supabase&perline=6" alt="Tech Icons">
@@ -114,22 +111,23 @@
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/rocket.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Getting Started
+<a id="getting-started"></a>
+## <img src="https://api.iconify.design/lucide:rocket.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Getting Started
 
-### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/code-2.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> For Developers & Contributors
+### <img src="https://api.iconify.design/lucide:code-2.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> For Developers & Contributors
 
-#### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/check-circle.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> Prerequisites
+#### <img src="https://api.iconify.design/lucide:check-circle.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> Prerequisites
 
 - **Node.js** `22+`
 - **npm** `10+`
 
-#### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/download.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> Installation
+#### <img src="https://api.iconify.design/lucide:download.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> Installation
 
 ```bash
 npm install
 ```
 
-### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/key.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> Environment Variables
+### <img src="https://api.iconify.design/lucide:key.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> Environment Variables
 
 Copy the template and fill in your values:
 
@@ -148,14 +146,14 @@ cp .env.example .env
 | `VITE_DISCORD_CLIENT_ID` | Discord Application ID for Rich Presence | — |
 | `VITE_UPDATE_GITHUB_REPO` | `owner/repo` hosting release builds (updater) | — |
 
-### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/terminal.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> Development
+### <img src="https://api.iconify.design/lucide:terminal.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> Development
 
 ```bash
 npm run dev          # Renderer in browser (vite)
 npm run electron:dev # Full Electron app in dev mode
 ```
 
-### <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/package.svg" width="16" height="16" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-3px"> Production Build
+### <img src="https://api.iconify.design/lucide:package.svg?color=%23d97757" width="16" height="16" style="vertical-align:-3px; display:inline-block"> Production Build
 
 ```bash
 npm run typecheck    # TypeScript checks (renderer + Electron main)
@@ -168,7 +166,8 @@ The installer is written to `release/<version>/OnyxaxCinemaSetup<version>.exe`.
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/folder-tree.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Project Structure
+<a id="project-structure"></a>
+## <img src="https://api.iconify.design/lucide:folder-tree.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Project Structure
 
 ```
 ├── electron/            # Electron main & preload processes
@@ -191,7 +190,7 @@ The installer is written to `release/<version>/OnyxaxCinemaSetup<version>.exe`.
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/shield-check.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Security
+## <img src="https://api.iconify.design/lucide:shield-check.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Security
 
 - **No secrets in git** — `.env` is ignored, only `.env.example` is tracked.
 - **Encrypted stream URLs** — resolver runs **exclusively in main process**; renderer receives only `iv:ciphertext`.
@@ -200,7 +199,7 @@ The installer is written to `release/<version>/OnyxaxCinemaSetup<version>.exe`.
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/package-check.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> Releases & Updates
+## <img src="https://api.iconify.design/lucide:package-check.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Releases & Updates
 
 1. Bump `version` in `package.json`
 2. Run `npm run dist` to produce the NSIS installer
@@ -211,7 +210,7 @@ The updater checks on startup (`App.tsx` → `CHECK_FOR_UPDATES`) and supports *
 
 ---
 
-## <img src="https://cdn.jsdelivr.net/npm/lucide-static@0.344.0/icons/scale.svg" width="20" height="20" style="filter: invert(52%) sepia(38%) saturate(820%) hue-rotate(325deg) brightness(92%) contrast(88%); vertical-align:-4px"> License
+## <img src="https://api.iconify.design/lucide:scale.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> License
 
 **MIT** — see [LICENSE](LICENSE).
 
