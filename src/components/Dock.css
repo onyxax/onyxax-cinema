@@ -12,11 +12,13 @@
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   background: var(--sidebar);
   border: 1px solid var(--sidebar-border);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15),
-              0 -8px 32px rgba(0,0,0,0.35),
-              0 8px 32px rgba(0,0,0,0.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08),
+              0 4px 16px rgba(0,0,0,0.20);
 }
-.dock.collapsed { width: 48px; min-width: 48px; }
+.dock.collapsed { width: 48px; min-width: 48px; overflow: visible; }
+.dock.collapsed .dock-inner { overflow: visible; }
+.dock.collapsed .dock-bottom { overflow: visible; }
+.dock.collapsed .dock-user { overflow: visible; }
 
 [dir="rtl"] .dock {
   margin: 10px 10px 10px 0;
@@ -31,9 +33,37 @@
 
 .dock-top { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
-.dock-header { display: flex; justify-content: flex-end; margin-bottom: 6px; }
-.dock.collapsed .dock-header { justify-content: center; margin-bottom: 6px; }
+.dock-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 2px 2px 0; }
+.dock.collapsed .dock-header { justify-content: center; margin-bottom: 6px; padding: 0; }
+.dock-brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dock-brand-icon { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.dock-brand-text { font-size: 13px; font-weight: 700; color: var(--sidebar-foreground); letter-spacing: 0.2px; white-space: nowrap; }
+.dock-brand-text span { font-weight: 400; opacity: 0.7; }
 
+.dock-app-toggle {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 7px;
+  flex-shrink: 0; background: transparent; border: none; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.dock-app-toggle:hover { background: var(--sidebar-accent); }
+.dock-app-icon {
+  width: 32px; height: 32px; border-radius: 6px;
+  object-fit: cover; transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.dock-app-toggle-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--sidebar-foreground);
+  opacity: 0; transform: scale(0.85);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  pointer-events: none;
+}
+.dock-app-toggle:hover .dock-app-icon { opacity: 0; transform: scale(0.85); }
+.dock-app-toggle:hover .dock-app-toggle-icon { opacity: 0.9; transform: scale(1); }
+
+/* keep old class for fallback if used elsewhere */
 .dock-collapse-btn {
   display: flex; align-items: center; justify-content: center;
   width: 24px; height: 24px; border-radius: 6px;
@@ -180,6 +210,31 @@
   padding: 4px; border-radius: 8px; z-index: 10001;
   background: var(--popover); border: 1px solid var(--border);
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.dock-user-dropdown.collapsed-popover {
+  left: calc(100% + 10px);
+  right: auto;
+  bottom: 4px;
+  top: auto;
+  width: 170px;
+}
+.dock-dropdown-user-head {
+  padding: 6px 8px 8px;
+  border-bottom: 1px solid var(--border);
+  margin: 0 -4px 4px;
+}
+.dock-dropdown-user-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--popover-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+[dir="rtl"] .dock-user-dropdown.collapsed-popover {
+  left: auto;
+  right: calc(100% + 10px);
 }
 
 .dock-dropdown-item {

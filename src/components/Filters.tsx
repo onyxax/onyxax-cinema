@@ -103,7 +103,7 @@ const Filters: React.FC<FiltersProps> = ({ onGenreChange, onSortChange, type, hi
   const sortOptions = [
     { id: 'popularity.desc', name: t('filters.popularity') },
     { id: 'vote_average.desc', name: t('filters.highestRated') },
-    { id: 'original_title.asc', name: 'A-Z' },
+    { id: 'original_title.asc', name: t('category.sortAZ') },
   ];
 
   const genres = React.useMemo(() => 

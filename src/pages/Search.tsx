@@ -7,11 +7,24 @@ import type { TMDBMovie } from '../types/tmdb';
 import './CategoryPage.css';
 
 import { useTranslation } from 'react-i18next';
+import useDiscordRPC from '../hooks/useDiscordRPC';
 
 const Search: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
+  // eslint-disable-next-line -- stable mount timestamp for RPC
+  const mountTs = React.useRef(Date.now()).current;
+  useDiscordRPC({
+    details: query ? `Searching: ${query.slice(0, 28)}` : 'Onyxax Cinema',
+    state: query ? `Search • ${query.slice(0, 18)}` : 'Search • Discover',
+    largeImageKey: 'onyxaxcinema',
+    largeImageText: query ? `Search: ${query} • Onyxax Cinema` : 'Onyxax Cinema • Search Movies & Series',
+    smallImageKey: 'onyxaxcinema',
+    smallImageText: query ? `Search • ${query.slice(0, 30)}` : 'Onyxax Cinema • Search',
+    startTimestamp: Math.floor(mountTs / 1000),
+    buttons: [{ label: 'Download App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }],
+  }, [query]);
   const [results, setResults] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(false);
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import Hero from '../components/Hero';
 import ContentRow from '../components/ContentRow';
 import BackToTop from '../components/BackToTop';
+import Footer from '../components/Footer';
 import { useTranslation } from 'react-i18next';
 import useDiscordRPC from '../hooks/useDiscordRPC';
 import {
@@ -15,7 +15,9 @@ import {
   fetchByNetwork,
   prefetchImage,
   IMAGE_BASE_URL,
+  THUMBNAIL_BASE_URL,
   fetchImages,
+  fetchOverviewInEnglish,
   LOGO_BASE_URL
 } from '../services/tmdb';
 import { ChevronDown, Flame, Tv, Award, Sparkles, Film, Monitor, TrendingUp } from 'lucide-react';
@@ -116,9 +118,9 @@ const Home: React.FC = () => {
           fetchTrending(),
           fetchTrendingToday(),
           fetchTopRated(),
-          fetchMovies(undefined, 'popularity.desc', 60),
-          fetchTVShows(undefined, 'popularity.desc', 60),
-          fetchAnime(undefined, 'popularity.desc', 100),
+          fetchMovies(undefined, 'popularity.desc', 20),
+          fetchTVShows(undefined, 'popularity.desc', 20),
+          fetchAnime(undefined, 'popularity.desc', 20),
           fetchByNetwork(activePlatform.id)
         ]);
         if (cancelled) return;
@@ -162,7 +164,7 @@ const Home: React.FC = () => {
         setTopRated(filteredRated);
         setMovies(filteredMovies);
         setTvShows(filteredTV);
-        setAnime(animeData.slice(0, 20));
+        setAnime(animeData);
         setPlatformContent(platformData);
 
           homeSessionCache = {
@@ -177,8 +179,8 @@ const Home: React.FC = () => {
 
         const allItems = [...withImages, ...movies, ...tvShows, ...animeData].slice(0, 30);
         allItems.forEach(m => {
+          if (m.poster_path) prefetchImage(`${THUMBNAIL_BASE_URL}${m.poster_path}`);
           if (m.backdrop_path) prefetchImage(`${IMAGE_BASE_URL}${m.backdrop_path}`);
-          if (m.poster_path) prefetchImage(`${IMAGE_BASE_URL}${m.poster_path}`);
         });
 
         featuredWithLogos.forEach(m => {
@@ -204,7 +206,16 @@ const Home: React.FC = () => {
     if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
-  useDiscordRPC({ details: 'Exploring OnyxaxCinema', state: 'Browsing Home' }, []);
+  useDiscordRPC({
+    details: 'Onyxax Cinema',
+    state: 'Browsing Home • Discover',
+    largeImageKey: 'onyxaxcinema',
+    largeImageText: 'Onyxax Cinema • Movies • Series • Anime',
+    smallImageKey: 'onyxaxcinema',
+    smallImageText: 'Onyxax Cinema • Browsing',
+    startTimestamp: Math.floor(Date.now() / 1000),
+    buttons: [{ label: 'Download App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }],
+  }, []);
 
   const [prevPlatformId, setPrevPlatformId] = useState(activePlatform.id);
   if (prevPlatformId !== activePlatform.id) {
@@ -398,26 +409,7 @@ const Home: React.FC = () => {
         </div>
       </div>
 
-      <footer className="site-footer">
-        <div className="footer-content">
-          <div className="footer-brand">
-            <div className="footer-logo-mark">O</div>
-            <span className="footer-brand-name">ONYXAX</span>
-          </div>
-          <p className="footer-disclaimer">
-            <span className="brand-small">OnyxaxCinema</span>: This site does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
-          </p>
-          <div className="footer-links">
-            <Link to="/legal" className="footer-legal-link">{t('common.legal')}</Link>
-            <div className="footer-dots" />
-            <span>&copy; 2026 OnyxaxCinema</span>
-            <div className="footer-dots" />
-            <span>High Quality Cinematic Experience</span>
-            <div className="footer-dots" />
-            <span>v1.2.7</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
       <BackToTop />
     </div>
   );

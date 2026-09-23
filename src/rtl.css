@@ -98,13 +98,44 @@
 }
 [dir="rtl"] .back-btn-fixed { right: 40px; }
 
-/* Details */
+/* Details — stack logo→meta→buttons→desc vertically under each other, right-aligned */
 [dir="rtl"] .details-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   text-align: right;
+  padding-top: 90px;
 }
-[dir="rtl"] .details-meta { justify-content: flex-end; }
-[dir="rtl"] .details-buttons { justify-content: flex-end; }
-[dir="rtl"] .details-overview { text-align: right; }
+[dir="rtl"] .details-logo {
+  align-self: flex-end;
+  margin-bottom: 8px;
+  display: block;
+}
+[dir="rtl"] .details-title {
+  align-self: flex-end;
+  text-align: right;
+  margin-bottom: 8px;
+  width: 100%;
+}
+[dir="rtl"] .details-meta {
+  align-self: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  width: 100%;
+}
+[dir="rtl"] .details-buttons {
+  align-self: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  gap: 8px;
+  width: 100%;
+}
+[dir="rtl"] .details-overview {
+  align-self: flex-end;
+  text-align: right;
+  margin-top: 0;
+  width: 100%;
+}
 [dir="rtl"] .section-header { flex-direction: row-reverse; }
 [dir="rtl"] .episode-number {
   left: auto;
@@ -123,6 +154,12 @@
 }
 
 /* Movie card remove button already right — stays right in RTL, fine */
+
+/* Dock — same shadow in RTL (unified) */
+[dir="rtl"] .dock::before {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08),
+              0 4px 16px rgba(0,0,0,0.20);
+}
 
 /* General logical fixes — text alignment for RTL */
 [dir="rtl"] body { text-align: right; }

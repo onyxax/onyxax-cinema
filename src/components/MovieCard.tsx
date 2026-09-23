@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { THUMBNAIL_BASE_URL } from '../services/tmdb';
+import { THUMBNAIL_BASE_URL, LOGO_BASE_URL } from '../services/tmdb';
 import { Play, Plus, ChevronDown, X } from 'lucide-react';
-import { fetchDetails } from '../services/tmdb';
+import { fetchDetails, fetchImages } from '../services/tmdb';
 import type { TMDBMovie, WatchProgress } from '../types/tmdb';
 import { useTranslation } from 'react-i18next';
+import QuickPreview from './media/QuickPreview';
+import { StorageEvents } from '../lib/storage';
 import './MovieCard.css';
 
 interface MovieCardProps {
@@ -15,11 +17,16 @@ interface MovieCardProps {
   rank?: number;
   isContinueWatching?: boolean;
   index?: number;
+  enablePreview?: boolean;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: propProgress, rank, isContinueWatching, index = 0 }) => {
+const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: propProgress, rank, isContinueWatching, index = 0, enablePreview = true }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [previewRect, setPreviewRect] = useState<DOMRect | null>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Smartly detect content type
   const contentType = (item as TMDBMovie).media_type || (item as WatchProgress).type || type;
@@ -68,15 +75,24 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: pro
     const allProgress = JSON.parse(localStorage.getItem('onyxax_progress') || '{}');
     delete allProgress[item.id];
     localStorage.setItem('onyxax_progress', JSON.stringify(allProgress));
-    window.dispatchEvent(new Event('progress_changed'));
+    window.dispatchEvent(new Event(StorageEvents.progressChanged));
   };
+
+  const [logoPath, setLogoPath] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (!isWide || !item.id) return;
+    fetchImages(String(item.id), contentType as any).then(imgs => {
+      const logo = (imgs as any)?.logos?.find((l: any) => l.iso_639_1 === 'en') || (imgs as any)?.logos?.[0];
+      if (logo?.file_path) setLogoPath(logo.file_path);
+    }).catch(() => {});
+  }, [item.id, contentType, isWide]);
 
   const [imageLoaded, setImageLoaded] = React.useState(false);
   const [, forceUpdate] = React.useState(0);
   React.useEffect(() => {
     const handler = () => forceUpdate(n => n + 1);
-    window.addEventListener('progress_changed', handler);
-    return () => window.removeEventListener('progress_changed', handler);
+    window.addEventListener(StorageEvents.progressChanged, handler as EventListener);
+    return () => window.removeEventListener(StorageEvents.progressChanged, handler as EventListener);
   }, []);
   
   const imagePath = isWide 
@@ -89,19 +105,74 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: pro
   const releaseDate = item.release_date || item.first_air_date;
   const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
 
-  const getRating = () => {
-    const ratings = ['G', 'PG', 'PG-13', 'G', 'PG'];
-    const index = (Number(item.id) || 0) % ratings.length;
-    return ratings[index];
+  // Fake rating removed — QuickPreview shows real US rating from TMDB when available
+  // Keeping placeholder for future real rating integration
+
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = () => {
+    handlePrefetch();
+    if (!enablePreview || isWide) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) return;
+    // if already open, just keep alive
+    if (showPreview) {
+      if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+      if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+      return;
+    }
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    hoverTimer.current = setTimeout(() => {
+      // re-check rect at show time (in case of scroll)
+      const fresh = cardRef.current?.getBoundingClientRect();
+      setPreviewRect(fresh || rect);
+      setShowPreview(true);
+    }, 420);
   };
 
+  const handleMouseLeave = () => {
+    if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+    if (showPreview) {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+      closeTimer.current = setTimeout(() => setShowPreview(false), 280);
+    }
+  };
+
+  const handleKeepAlive = () => {
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+  };
+
+  // close on scroll / wheel — prevents stuck preview
+  React.useEffect(() => {
+    if (!showPreview) return;
+    const onScroll = () => {
+      if (hoverTimer.current) { clearTimeout(hoverTimer.current); hoverTimer.current = null; }
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+      setShowPreview(false);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('wheel', onScroll, { passive: true });
+    const scroller = document.querySelector('.main-content');
+    scroller?.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('wheel', onScroll);
+      scroller?.removeEventListener('scroll', onScroll);
+    };
+  }, [showPreview]);
 
   return (
+    <>
     <div 
+      ref={cardRef}
       className={`movie-card ${isWide ? 'wide' : ''}`} 
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={() => navigate(`/details/${contentType}/${item.id}`)}
-      onMouseEnter={handlePrefetch}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className={`card-image-container ${imageLoaded ? 'loaded' : ''}`}>
         {rank && (
@@ -133,7 +204,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: pro
         {isWide && (
           <>
             <div className="card-top-gradient" />
-            <div className="card-title-overlay">{title}</div>
+            <div className="card-logo-wrap" onClick={handlePlay}>
+              {logoPath ? (
+                <img src={`${LOGO_BASE_URL}${logoPath}`} alt={title} className="card-logo-img" />
+              ) : (
+                <span className="card-logo-fallback">{title}</span>
+              )}
+            </div>
           </>
         )}
 
@@ -176,7 +253,6 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: pro
           {remainingTime > 0 && progressPercent > 1 && (
              <span className="remaining-tag">{remainingTime}{t('details.min')}</span>
           )}
-          <span className="content-rating">{getRating()}</span>
           <span className="release-year">{year}</span>
         </div>
         
@@ -186,6 +262,16 @@ const MovieCard: React.FC<MovieCardProps> = ({ item, type, isWide, progress: pro
         {overview && <div className="card-overview">{overview}</div>}
       </div>
     </div>
+    {showPreview && previewRect && !isWide && (
+      <QuickPreview
+        item={item as TMDBMovie}
+        type={contentType as 'movie'|'tv'|'anime'}
+        anchorRect={previewRect}
+        onClose={() => setShowPreview(false)}
+        onKeepAlive={handleKeepAlive}
+      />
+    )}
+    </>
   );
 };
 

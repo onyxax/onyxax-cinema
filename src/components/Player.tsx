@@ -1,4 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { resolvePlayerUrl } from '../lib/securePlayer';
+import { getProgressMap } from '../lib/storage';
 import './Player.css';
 
 interface PlayerProps {
@@ -10,52 +13,23 @@ interface PlayerProps {
   onServerChange: (server: 'cineplay' | 'videasy') => void;
 }
 
-// Obfuscated IPC channel name - matches main process
-const _r = atob('X19yZXNvbHZlX18=');
-
-// Obfuscated decryption key - same as main process ENCRYPTION_KEY
-const _k = (() => {
-  const { createHash } = window.require('crypto');
-  return createHash('sha256').update(atob('T255eGF4X0NpbmVtYV9TZWN1cmVfS2V5XzIwMjY=')).digest();
-})();
-
-// AES-256-CBC decrypt function (mirrors main process decrypt)
-function _dec(enc: string): string {
-  try {
-    const { createDecipheriv } = window.require('crypto');
-    const parts = enc.split(':');
-    const iv = Buffer.from(parts.shift()!, 'hex');
-    const ct = Buffer.from(parts.join(':'), 'hex');
-    const d = createDecipheriv('aes-256-cbc', _k, iv);
-    return d.update(ct, 'hex', 'utf8') + d.final('utf8');
-  } catch {
-    return '';
-  }
-}
-
 const Player: React.FC<PlayerProps> = ({ type, id, season, episode, server }) => {
+  const { t } = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [playerUrl, setPlayerUrl] = useState<string>('');
 
   const getInitialProgress = () => {
-    const progress = JSON.parse(localStorage.getItem('onyxax_progress') || '{}');
+    const progress = getProgressMap();
     const item = progress[id];
     return item?.watched ? Math.floor(item.watched) : 0;
   };
 
   useEffect(() => {
+    let cancelled = false;
     const buildUrl = async () => {
       try {
-        const { ipcRenderer } = window.require('electron');
-        // Payload encoded as base64 — no plain URL visible in renderer source
-        const payload = btoa(JSON.stringify({ server, type, id, season, episode }));
-        const encrypted = await ipcRenderer.invoke(_r, payload);
-        if (!encrypted) return;
-
-        const url = _dec(encrypted);
-        if (!url) return;
-
-        // For videasy only, append the local progress timestamp
+        const url = await resolvePlayerUrl(server, type, id, season, episode);
+        if (cancelled || !url) return;
         if (server === 'videasy') {
           const secs = getInitialProgress();
           setPlayerUrl(secs > 5 ? `${url}&progress=${secs}` : url);
@@ -63,14 +37,14 @@ const Player: React.FC<PlayerProps> = ({ type, id, season, episode, server }) =>
           setPlayerUrl(url);
         }
       } catch {
-        // Silent fail — player stays blank on error
+        // keep loading state — will show initializing
       }
     };
-
     buildUrl();
+    return () => { cancelled = true; };
   }, [id, type, season, episode, server]);
 
-  if (!playerUrl) return <div className="player-loading">Initializing Player...</div>;
+  if (!playerUrl) return <div className="player-loading">{t('player.initializing')}</div>;
 
   return (
     <div className="player-wrapper">
@@ -81,7 +55,7 @@ const Player: React.FC<PlayerProps> = ({ type, id, season, episode, server }) =>
         frameBorder="0"
         allowFullScreen
         allow="encrypted-media"
-        title="ONYXAX Player"
+        title={t('player.initializing')}
       ></iframe>
     </div>
   );

@@ -50,13 +50,16 @@ function updateInitialActivity() {
     pid: process.pid,
     activity: {
       type: 3,
-      details: 'Watching: Exploring Cinema',
+      details: 'Onyxax Cinema',
+      state: 'Browsing Home • Discover',
       assets: {
         large_image: 'onyxaxcinema',
-        large_text: 'Onyxax Cinema'
+        large_text: 'Onyxax Cinema • Movies • Series • Anime',
+        small_image: 'onyxaxcinema',
+        small_text: 'Onyxax Cinema',
       },
       timestamps: {
-        start: startTimestamp.getTime()
+        start: Math.floor(startTimestamp.getTime() / 1000),
       },
       buttons: [
         { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
@@ -65,30 +68,6 @@ function updateInitialActivity() {
     }
   }).catch(() => { isRpcReady = false; });
 }
-
-ipcMain.handle('UPDATE_RPC', (_event, { details, state, start, end }: { details: string, state: string, start?: number, end?: number }) => {
-  if (!isRpcReady) return;
-  rpcRequest('SET_ACTIVITY', {
-    pid: process.pid,
-    activity: {
-      type: 3,
-      details,
-      state,
-      assets: {
-        large_image: 'onyxaxcinema',
-        large_text: 'Onyxax Cinema'
-      },
-      timestamps: {
-        ...(start && { start }),
-        ...(end && { end })
-      },
-      buttons: [
-        { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
-      ],
-      instance: false,
-    }
-  }).catch(() => { isRpcReady = false; });
-});
 
 function loginRPC() {
   rpc.login({ clientId }).catch(err => {
@@ -280,29 +259,29 @@ ipcMain.on('APP_MAXIMIZE', () => {
 
 ipcMain.on('UPDATE_RPC', (_event, data) => {
   if (!isRpcReady) return;
+  // احترافي: عند الإيقاف نوقف العداد تماماً (لا timestamps)، عند التشغيل نعرض شريط الوقت
+  const hasStart = typeof data.startTimestamp === 'number' && !isNaN(data.startTimestamp);
+  const hasEnd = typeof data.endTimestamp === 'number' && !isNaN(data.endTimestamp);
+  const timestamps = hasStart ? (hasEnd ? { start: data.startTimestamp, end: data.endTimestamp } : { start: data.startTimestamp }) : undefined;
+  const activity: any = {
+    type: 3,
+    details: data.details,
+    state: data.state,
+    assets: {
+      large_image: data.largeImageKey || 'onyxaxcinema',
+      large_text: data.largeImageText || 'Onyxax Cinema',
+      small_image: data.smallImageKey,
+      small_text: data.smallImageText,
+    },
+    buttons: data.buttons || [
+      { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
+    ],
+    instance: false,
+  };
+  if (timestamps) activity.timestamps = timestamps;
   rpcRequest('SET_ACTIVITY', {
     pid: process.pid,
-    activity: {
-      type: 3, // 3 = Watching
-      details: data.details, // This is the English title from Watch.tsx
-      state: data.state,
-      timestamps: data.endTimestamp ? {
-        start: data.startTimestamp,
-        end: data.endTimestamp,
-      } : {
-        start: data.startTimestamp,
-      },
-      assets: {
-        large_image: data.largeImageKey || 'onyxaxcinema',
-        large_text: data.largeImageText || 'Onyxax Cinema',
-        small_image: data.smallImageKey,
-        small_text: data.smallImageText,
-      },
-      buttons: data.buttons || [
-        { label: 'Download The App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }
-      ],
-      instance: false,
-    }
+    activity,
   }).catch(console.error);
 });
 
@@ -336,7 +315,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
       contextIsolation: false,
-      devTools: false, // BLOCK DevTools entirely at the Electron level
+      devTools: !app.isPackaged, // allow DevTools in dev for debugging
     },
   })
 
@@ -419,29 +398,66 @@ function createWindow() {
           window.__onyxax_progress_listener__ = true;
           window.addEventListener('message', function(event) {
             try {
-              let data = event.data;
+              var trusted = ['https://cineplay.railway.app', 'https://player.videasy.net', window.location.origin];
+              if (event.origin && trusted.indexOf(event.origin) === -1 && !trusted.some(function(o){ return event.origin.indexOf(o) === 0; })) {
+                // allow if origin is empty (postMessage from same window) or trusted prefix
+                if (event.origin !== '' && event.origin !== 'null') return;
+              }
+              var data = event.data;
               if (typeof data === 'string') {
                 try { data = JSON.parse(data); } catch(e) { return; }
               }
-              if (!data) return;
-              if (data.timestamp !== undefined || data.progress !== undefined) {
-                const progressStore = JSON.parse(localStorage.getItem('onyxax_progress') || '{}');
-                const contentId = data.id ? String(data.id) : null;
-                if (!contentId) return;
-                const existing = progressStore[contentId] || {};
-                const duration = data.duration || existing.duration || 3600;
-                const watched = data.timestamp !== undefined ? data.timestamp : ((data.progress / 100) * duration);
-                progressStore[contentId] = {
-                  ...existing,
-                  watched: watched,
-                  duration: duration,
-                  last_updated: Date.now(),
-                  season: data.season ? String(data.season) : existing.season,
-                  episode: data.episode ? String(data.episode) : existing.episode,
-                };
-                localStorage.setItem('onyxax_progress', JSON.stringify(progressStore));
-                window.dispatchEvent(new Event('progress_changed'));
+              if (!data || typeof data !== 'object') return;
+              function parseSec(v) {
+                if (v === undefined || v === null || v === '') return null;
+                if (typeof v === 'number' && !isNaN(v)) return v;
+                var s = String(v).trim();
+                if (/^\d+:\d+:\d+$/.test(s)) { var p = s.split(':').map(Number); return p[0]*3600 + p[1]*60 + p[2]; }
+                if (/^\d+:\d+$/.test(s)) { var p2 = s.split(':').map(Number); return p2[0]*60 + p2[1]; }
+                var n = Number(s);
+                return isNaN(n) ? null : n;
               }
+              var rawTime = (data.timestamp !== undefined ? data.timestamp : (data.currentTime !== undefined ? data.currentTime : (data.current_time !== undefined ? data.current_time : (data.time !== undefined ? data.time : (data.seconds !== undefined ? data.seconds : data.position)))));
+              var rawProgress = (data.progress !== undefined ? data.progress : (data.percent !== undefined ? data.percent : (data.percentage !== undefined ? data.percentage : data.played)));
+              var rawDuration = (data.duration !== undefined ? data.duration : (data.totalDuration !== undefined ? data.totalDuration : data.maxDuration));
+              var tSec = parseSec(rawTime);
+              var pSec = parseSec(rawProgress);
+              var dSec = parseSec(rawDuration);
+              var hasTime = tSec !== null;
+              var hasProgress = pSec !== null;
+              if (!hasTime && !hasProgress) return;
+              var contentId = data.id ? String(data.id) : null;
+              if (!contentId) {
+                try {
+                  var m = window.location.hash.match(/\/watch\/[^\/]+\/([^\/]+)/) || window.location.pathname.match(/\/watch\/[^\/]+\/([^\/]+)/);
+                  if (m) contentId = m[1];
+                } catch(e) {}
+              }
+              if (!contentId) return;
+              var progressStore = JSON.parse(localStorage.getItem('onyxax_progress') || '{}');
+              var existing = progressStore[contentId] || {};
+              var duration = (dSec !== null ? dSec : (Number(existing.duration) || 3600));
+              if (isNaN(duration) || duration <= 0) duration = 3600;
+              var watched;
+              if (hasTime) {
+                watched = tSec;
+                if (watched > duration * 10) watched = watched / 1000;
+              } else {
+                var pct = pSec;
+                var pctNorm = pct > 1 ? pct / 100 : pct;
+                watched = pctNorm * duration;
+              }
+              progressStore[contentId] = {
+                watched: watched,
+                duration: duration,
+                last_updated: Date.now(),
+                season: data.season ? String(data.season) : existing.season,
+                episode: data.episode ? String(data.episode) : existing.episode,
+              };
+              // keep existing meta (title etc) if present
+              for (var k in existing) { if (!(k in progressStore[contentId])) progressStore[contentId][k] = existing[k]; }
+              localStorage.setItem('onyxax_progress', JSON.stringify(progressStore));
+              window.dispatchEvent(new Event('progress_changed'));
             } catch(e) { }
           });
         }

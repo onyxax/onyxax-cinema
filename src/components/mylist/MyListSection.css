@@ -1,0 +1,81 @@
+/* MyList — مينيمال فاخر (Apple TV) — لا حدود، لا ظلال، تركيز على البوستر */
+
+.mylist-minimal {
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.mylist-minimal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  padding-bottom: 8px;
+}
+
+.mylist-minimal-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.mylist-minimal-title svg {
+  color: var(--muted-foreground);
+  opacity: 0.7;
+}
+
+.mylist-minimal-count {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.mylist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.mylist-grid-wide {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.mylist-grid .movie-card,
+.mylist-grid-wide .movie-card {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-shadow: none;
+  border: none;
+  border-radius: 8px;
+}
+
+.mylist-grid .movie-card:hover,
+.mylist-grid-wide .movie-card:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+@media (max-width: 768px) {
+  .mylist-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .mylist-grid-wide {
+    grid-template-columns: 1fr;
+  }
+}

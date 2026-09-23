@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { electronSend } from '../lib/electron';
 
 interface RPCOptions {
   details: string;
   state?: string;
   largeImageKey?: string;
   largeImageText?: string;
+  smallImageKey?: string;
+  smallImageText?: string;
   startTimestamp?: number;
   endTimestamp?: number;
   buttons?: { label: string, url: string }[];
@@ -22,20 +25,20 @@ const useDiscordRPC = (options: RPCOptions, deps: any[] = []) => {
     // Small delay (debounce) to ensure we don't spam Discord/Electron IPC
     timerRef.current = setTimeout(() => {
       try {
-        const { ipcRenderer } = (window as any).require('electron');
-        
         if (isRPCEnabled) {
-          ipcRenderer.send('UPDATE_RPC', {
+          electronSend('UPDATE_RPC', {
             details: options.details,
             state: options.state,
             largeImageKey: options.largeImageKey || 'onyxaxcinema',
             largeImageText: options.largeImageText || 'Onyxax Cinema',
+            smallImageKey: options.smallImageKey,
+            smallImageText: options.smallImageText,
             startTimestamp: options.startTimestamp,
             endTimestamp: options.endTimestamp,
             buttons: options.buttons,
           });
         } else {
-          ipcRenderer.send('CLEAR_RPC');
+          electronSend('CLEAR_RPC');
         }
       } catch {
         /* Discord RPC is best-effort; ignore failures */

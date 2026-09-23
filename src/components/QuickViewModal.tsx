@@ -1,6 +1,11 @@
+/**
+ * @deprecated — replaced by `src/components/media/QuickPreview.tsx`
+ * Kept for backward compatibility only. New code should use QuickPreview (portal + trailer + unified actions).
+ */
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Plus, Star, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { fetchDetails, IMAGE_BASE_URL } from '../services/tmdb';
 import type { TMDBMovie, TMDBDetails } from '../types/tmdb';
 import './QuickViewModal.css';
@@ -27,6 +32,7 @@ interface QuickViewModalProps {
 const DOCK_WIDTH = 260;
 
 const QuickViewModal: React.FC<QuickViewModalProps> = ({ item, type, rect, onClose, externalClosing, onCancelClose, onStartClose }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [details, setDetails] = useState<TMDBDetails | null>(null);
   const [isInMyList, setIsInMyList] = useState(() => getMyListStatus(item.id));
@@ -163,7 +169,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ item, type, rect, onClo
           <div className="quick-view-meta">
             {item.vote_average > 0 && (
               <span className="quick-view-match">
-                <Star size={12} fill="currentColor" /> {Math.min(99, Math.round(item.vote_average * 10))}% Match
+                <Star size={12} fill="currentColor" /> {Math.min(99, Math.round(item.vote_average * 10))}% {t('content.match')}
               </span>
             )}
             {year && <span className="quick-view-year">{year}</span>}
@@ -187,7 +193,7 @@ const QuickViewModal: React.FC<QuickViewModalProps> = ({ item, type, rect, onClo
           <div className="quick-view-actions">
             <button className="quick-view-play-btn" onClick={handlePlay}>
               <Play size={18} fill="currentColor" />
-              <span>Play</span>
+              <span>{t('hero.play')}</span>
             </button>
             <button
               className={`quick-view-list-btn ${isInMyList ? 'in-list' : ''}`}

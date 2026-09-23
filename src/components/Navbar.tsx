@@ -1,3 +1,7 @@
+/**
+ * @deprecated — replaced by `src/components/TitleBar.tsx` + `src/components/Dock.tsx`
+ * Kept for reference only.
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, Bell, User, Menu, X, LogOut, Settings, ChevronDown } from 'lucide-react';

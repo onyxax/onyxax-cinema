@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import ProfileModal from './ProfileModal';
 import { THUMBNAIL_BASE_URL } from '../services/tmdb';
+import { getSidebarCollapsed, setSidebarCollapsed, getPinned, setPinned, StorageEvents } from '../lib/storage';
 import './Dock.css';
 
 interface PinnedItem {
@@ -34,37 +35,26 @@ const Dock: React.FC = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('onyxax_pinned') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>(() => getPinned() as PinnedItem[]);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; item: PinnedItem } | null>(null);
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('onyax_sidebar_collapsed') === 'true');
+  const [collapsed, setCollapsed] = useState(() => getSidebarCollapsed());
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    localStorage.setItem('onyax_sidebar_collapsed', String(collapsed));
+    setSidebarCollapsed(collapsed);
   }, [collapsed]);
   const location = useLocation();
   const navigate = useNavigate();
 
   const loadPinned = () => {
-    try {
-      const saved = localStorage.getItem('onyxax_pinned');
-      setPinnedItems(saved ? JSON.parse(saved) : []);
-    } catch {
-      setPinnedItems([]);
-    }
+    setPinnedItems(getPinned() as PinnedItem[]);
   };
 
   useEffect(() => {
-    window.addEventListener('pinned_changed', loadPinned);
+    window.addEventListener(StorageEvents.pinnedChanged, loadPinned as EventListener);
     window.addEventListener('storage', loadPinned);
     return () => {
-      window.removeEventListener('pinned_changed', loadPinned);
+      window.removeEventListener(StorageEvents.pinnedChanged, loadPinned as EventListener);
       window.removeEventListener('storage', loadPinned);
     };
   }, []);
@@ -87,10 +77,9 @@ const Dock: React.FC = () => {
   };
 
   const handleUnpin = (itemId: number) => {
-    const saved: PinnedItem[] = JSON.parse(localStorage.getItem('onyxax_pinned') || '[]');
+    const saved = getPinned() as PinnedItem[];
     const newPinned = saved.filter((p) => p.id !== itemId);
-    localStorage.setItem('onyxax_pinned', JSON.stringify(newPinned));
-    window.dispatchEvent(new Event('pinned_changed'));
+    setPinned(newPinned);
     setContextMenu(null);
   };
 
@@ -108,13 +97,34 @@ const Dock: React.FC = () => {
         <div className="dock-inner">
           <div className="dock-top">
             <div className="dock-header">
-              <button
-                className="dock-collapse-btn"
-                onClick={() => setCollapsed(!collapsed)}
-                title={collapsed ? t('dock.expand') : t('dock.collapse')}
-              >
-                {collapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
-              </button>
+              {collapsed ? (
+                <button
+                  className="dock-app-toggle"
+                  onClick={() => setCollapsed(!collapsed)}
+                  title={t('dock.expand')}
+                  aria-label={t('dock.expand')}
+                >
+                  <img src="AppIcon64.png" alt="" className="dock-app-icon" />
+                  <span className="dock-app-toggle-icon">
+                    <PanelLeft size={16} />
+                  </span>
+                </button>
+              ) : (
+                <>
+                  <div className="dock-brand">
+                    <img src="AppIcon64.png" alt="" className="dock-brand-icon" />
+                    <span className="dock-brand-text">Onyxax <span>Cinema</span></span>
+                  </div>
+                  <button
+                    className="dock-collapse-btn"
+                    onClick={() => setCollapsed(true)}
+                    title={t('dock.collapse')}
+                    aria-label={t('dock.collapse')}
+                  >
+                    <PanelLeftClose size={16} />
+                  </button>
+                </>
+              )}
             </div>
 
             <div className="dock-spaces">
@@ -209,8 +219,13 @@ const Dock: React.FC = () => {
                   )}
                 </button>
 
-                {isUserMenuOpen && !collapsed && (
-                  <div className="dock-user-dropdown">
+                {isUserMenuOpen && (
+                  <div className={`dock-user-dropdown${collapsed ? ' collapsed-popover' : ''}`}>
+                    {collapsed && (
+                      <div className="dock-dropdown-user-head">
+                        <span className="dock-dropdown-user-name">{user?.user_metadata?.display_name || t('common.user')}</span>
+                      </div>
+                    )}
                     <button className="dock-dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
                       <Settings size={14} />
                       <span>{t('dock.settings')}</span>

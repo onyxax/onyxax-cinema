@@ -1,8 +1,8 @@
 {
   "name": "onyxax-cinema",
   "productName": "Onyxax Cinema",
-  "version": "1.2.8",
-  "description": "A cinematic streaming desktop application — movies, TV series and anime in one elegant experience.",
+  "version": "1.2.9",
+  "description": "A cinematic streaming desktop application \u2014 movies, TV series and anime in one elegant experience.",
   "private": true,
   "license": "MIT",
   "author": "Onyxax",
@@ -13,6 +13,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "check:i18n": "node scripts/check-i18n.js",
     "preview": "vite preview",
     "electron:dev": "vite",
     "dist": "npm run build && electron-builder"
@@ -42,7 +43,13 @@
     },
     "asar": true,
     "compression": "maximum",
-    "buildDependenciesFromSource": false
+    "buildDependenciesFromSource": false,
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/AppIcon512.png",
+      "category": "AudioVideo"
+    },
+    "icon": "public/AppIcon512.png"
   },
   "dependencies": {
     "@cloudinary/react": "^1.14.4",

@@ -27,13 +27,14 @@ function applyArabicFont(lng: string) {
 // Apply font on initial load (scripts run inside <body>, so body is available)
 applyArabicFont(i18n.language);
 
+// RTL disabled temporarily — keep LTR for all languages (Arabic stays available)
 // Set document direction and lang on initial load (persists across reloads)
-document.documentElement.dir = i18n.dir(i18n.language);
+document.documentElement.dir = 'ltr';
 document.documentElement.lang = i18n.language;
 
 // Update document direction and font on language change
 i18n.on('languageChanged', (lng) => {
-  document.documentElement.dir = i18n.dir(lng);
+  document.documentElement.dir = 'ltr';
   document.documentElement.lang = lng;
   applyArabicFont(lng);
   // Clear TMDB cache to force refetch with new language

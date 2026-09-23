@@ -13,11 +13,17 @@ import Auth from './pages/Auth';
 import Legal from './pages/Legal';
 import Loading from './components/Loading';
 import UpdateModal from './components/UpdateModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { StorageKeys } from './lib/storage';
 import './App.css';
 
 const AppContent: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user: authUser, loading: authLoading } = useAuth();
+  // Preview bypass: allow viewing MyList without Supabase login
+  const isPreview = typeof window !== 'undefined' && window.location.hash.includes('preview');
+  const user = (isPreview ? { id: 'preview', email: 'preview@onyxax.local', user_metadata: { display_name: 'Onyxax', avatar_url: '' } } as any : authUser) || authUser;
+  const loading = isPreview ? false : authLoading;
   const { i18n } = useTranslation();
   const location = useLocation();
   const [updateInfo, setUpdateInfo] = useState<{ version: string, url: string, isBeta?: boolean } | null>(null);
@@ -70,15 +76,15 @@ const AppContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const api = window.electronAPI;
-    if (api) {
+    const api = (window as any).electronAPI;
+    if (api?.invoke) {
       // Small delay to let the app settle
       setTimeout(() => {
         api.invoke('CHECK_FOR_UPDATES').then((result: any) => {
           if (result?.updateAvailable) {
             // If it's a beta, check if the user has already dismissed this specific beta version
             if (result.isBeta) {
-              const dismissedBetas = JSON.parse(localStorage.getItem('onyxax_dismissed_betas') || '[]');
+              const dismissedBetas = JSON.parse(localStorage.getItem(StorageKeys.dismissedBetas) || '[]');
               if (dismissedBetas.includes(result.version)) {
                 return; // Don't show if already dismissed
               }
@@ -92,10 +98,10 @@ const AppContent: React.FC = () => {
 
   const handleDismissUpdate = () => {
     if (updateInfo?.isBeta) {
-      const dismissedBetas = JSON.parse(localStorage.getItem('onyxax_dismissed_betas') || '[]');
+      const dismissedBetas = JSON.parse(localStorage.getItem(StorageKeys.dismissedBetas) || '[]');
       if (!dismissedBetas.includes(updateInfo.version)) {
         dismissedBetas.push(updateInfo.version);
-        localStorage.setItem('onyxax_dismissed_betas', JSON.stringify(dismissedBetas));
+        localStorage.setItem(StorageKeys.dismissedBetas, JSON.stringify(dismissedBetas));
       }
     }
     setUpdateInfo(null);
@@ -122,6 +128,7 @@ const AppContent: React.FC = () => {
             <div className="app-container">
               <Dock />
               <main className="main-content">
+                {/* key = pathname ensures cinematic pageEnter replays on every navigation */}
                 <div key={location.pathname} className="page-transition">
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -155,11 +162,13 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

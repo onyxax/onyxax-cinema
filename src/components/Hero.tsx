@@ -146,18 +146,6 @@ const Hero: React.FC<HeroProps> = ({ movies, initialIndex = 0, onIndexChange }) 
         ))}
       </div>
 
-      <div className="hero-dots">
-        {movies.map((_, index) => (
-          <button
-            key={index}
-            className={`hero-dot ${index === safeIndex ? 'active' : ''}`}
-            onClick={() => {
-              setCurrentIndex(index);
-              onIndexChange?.(index);
-            }}
-          />
-        ))}
-      </div>
     </div>
   );
 };

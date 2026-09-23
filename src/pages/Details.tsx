@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import ContentRow from '../components/ContentRow';
 import Loading from '../components/Loading';
 import LogoImage from '../components/LogoImage';
+import { electronSend } from '../lib/electron';
+import { getMyList, setMyList, getLikes, setLikes, getPinned, setPinned } from '../lib/storage';
 import './Details.css';
 
 const Details: React.FC = () => {
@@ -88,6 +90,11 @@ const Details: React.FC = () => {
       try {
         // 1. Fetch all data in parallel
         const detailsData = await fetchDetails(id, type);
+        if (!detailsData) {
+          setError(true);
+          setIsPageLoaded(true);
+          return;
+        }
         const [recsData, creditsData, imagesData] = await Promise.all([
           fetchRecommendations(id, type),
           fetchCredits(id, type),
@@ -100,26 +107,15 @@ const Details: React.FC = () => {
                   || imagesData.logos.find((l) => l.iso_639_1 === 'en')
                   || imagesData.logos[0];
 
-        // 2. Preload all images before touching state
-        const imagePreloads: Promise<void>[] = [];
-
+        // 2. Preload images in background (non-blocking) to avoid grey stuck
         if (detailsData?.backdrop_path) {
-          imagePreloads.push(new Promise<void>((res) => {
-            const img = new Image();
-            img.src = `https://image.tmdb.org/t/p/w1280${detailsData.backdrop_path}`;
-            img.onload = () => res(); img.onerror = () => res();
-          }));
+          const img = new Image();
+          img.src = `https://image.tmdb.org/t/p/w1280${detailsData.backdrop_path}`;
         }
-
         if (logo?.file_path) {
-          imagePreloads.push(new Promise<void>((res) => {
-            const img = new Image();
-            img.src = `https://image.tmdb.org/t/p/w500${logo.file_path}`;
-            img.onload = () => res(); img.onerror = () => res();
-          }));
+          const img = new Image();
+          img.src = `https://image.tmdb.org/t/p/w500${logo.file_path}`;
         }
-
-        await Promise.all(imagePreloads);
 
         // Extract English/Original title and poster to save them consistently to localStorage
         const enTitle = detailsData?.translations?.translations?.find((t: any) => t.iso_639_1 === 'en')?.data?.title || 
@@ -129,10 +125,10 @@ const Details: React.FC = () => {
 
         englishDataRef.current = { title: enTitle || '', poster: enPoster || '' };
 
-        // 3. Read localStorage values
-        const myList = JSON.parse(localStorage.getItem('onyxax_mylist') || '[]');
-        const likes   = JSON.parse(localStorage.getItem('onyxax_likes')  || '[]');
-        const pinned  = JSON.parse(localStorage.getItem('onyxax_pinned') || '[]');
+        // 3. Read localStorage values (centralized)
+        const myList = getMyList();
+        const likes   = getLikes();
+        const pinned  = getPinned();
 
         // 4. Commit ALL state in one synchronous block → single React paint
         setItem(detailsData);
@@ -158,15 +154,31 @@ const Details: React.FC = () => {
   useEffect(() => {
     if (item && isPageLoaded) {
       try {
-        const englishTitle = item.translations?.translations?.find((t: any) => t.iso_639_1 === 'en')?.data?.title || 
-                             item.original_title || item.original_name || item.title || item.name;
-        
-        const { ipcRenderer } = window.require('electron');
-        ipcRenderer.send('UPDATE_RPC', {
-          details: `Viewing: ${englishTitle}`,
-          state: 'Exploring details',
-          largeImageKey: item.backdrop_path ? `https://image.tmdb.org/t/p/w500${item.backdrop_path}` : 'onyxaxcinema',
-          largeImageText: englishTitle
+        const englishTitle = (item.translations?.translations?.find((t: any) => t.iso_639_1 === 'en')?.data?.title ||
+                             item.original_title || item.original_name || item.title || item.name || '') as string;
+        const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+        const rating = item.vote_average ? `${item.vote_average.toFixed(1)}★` : '';
+        const runtime = item.runtime ? `${Math.floor(item.runtime / 60)}h ${item.runtime % 60}m` : item.number_of_seasons ? `${item.number_of_seasons} Seasons • ${item.number_of_episodes || '?'} EPs` : '';
+        const genres = item.genres?.slice(0, 2).map(g => g.name).join(' • ') || '';
+        const kindLabel = type === 'tv' ? 'Series' : type === 'anime' ? 'Anime' : 'Film';
+        // مليء بالمعلومات: السطر 1 = العنوان، السطر 2 = سنة + تقييم + مدة + نوع، الصورة الصغيرة = نوع المحتوى
+        const stateLine = [year, rating, runtime, kindLabel].filter(Boolean).join(' • ').slice(0, 32);
+        const largeTooltip = [englishTitle, year, rating, genres].filter(Boolean).join(' • ').slice(0, 128);
+        // small دائم = شعار التطبيق لضمان ظهوره فوق الصورة الكبيرة
+        const smallKey = 'onyxaxcinema';
+        const smallTooltip = `${kindLabel}${genres ? ` • ${genres}` : ''} • Onyxax Cinema`.slice(0, 128);
+        electronSend('UPDATE_RPC', {
+          details: `Viewing ${kindLabel}: ${englishTitle.slice(0, 40)}`,
+          state: stateLine,
+          largeImageKey: item.backdrop_path ? `https://image.tmdb.org/t/p/w780${item.backdrop_path}` : item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'onyxaxcinema',
+          largeImageText: largeTooltip,
+          smallImageKey: smallKey,
+          smallImageText: smallTooltip,
+          startTimestamp: Math.floor(Date.now() / 1000),
+          buttons: [
+            { label: 'View on TMDB', url: `https://www.themoviedb.org/${type === 'anime' ? 'tv' : type}/${item.id}` },
+            { label: 'Download App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' },
+          ],
         });
       } catch {
         /* Discord RPC is best-effort; ignore failures */
@@ -201,42 +213,42 @@ const Details: React.FC = () => {
   };
 
   const toggleMyList = () => {
-    const myList = JSON.parse(localStorage.getItem('onyxax_mylist') || '[]');
+    const myList = getMyList();
     let newList;
     if (isInMyList) {
       newList = myList.filter((m: TMDBMovie) => m.id.toString() !== id);
     } else {
       newList = [...myList, { 
-        id: item.id, 
+        id: item!.id, 
         title: englishDataRef.current.title, 
         poster_path: englishDataRef.current.poster, 
         type, 
-        vote_average: item.vote_average 
+        vote_average: item!.vote_average 
       }];
     }
-    localStorage.setItem('onyxax_mylist', JSON.stringify(newList));
+    setMyList(newList);
     setIsInMyList(!isInMyList);
   };
 
   const toggleLike = () => {
-    const likes = JSON.parse(localStorage.getItem('onyxax_likes') || '[]');
+    const likes = getLikes();
     let newLikes;
     if (isLiked) {
       newLikes = likes.filter((l: TMDBMovie) => l.id.toString() !== id);
     } else {
       newLikes = [...likes, { 
-        id: item.id, 
+        id: item!.id, 
         title: englishDataRef.current.title, 
         poster_path: englishDataRef.current.poster, 
         type 
       }];
     }
-    localStorage.setItem('onyxax_likes', JSON.stringify(newLikes));
+    setLikes(newLikes);
     setIsLiked(!isLiked);
   };
 
   const togglePin = () => {
-    const pinned = JSON.parse(localStorage.getItem('onyxax_pinned') || '[]');
+    const pinned = getPinned();
     let newPinned;
     if (isPinned) {
       newPinned = pinned.filter((p: any) => p.id.toString() !== id);
@@ -247,23 +259,21 @@ const Details: React.FC = () => {
         return;
       }
       newPinned = [...pinned, { 
-        id: item.id, 
+        id: item!.id, 
         title: englishDataRef.current.title, 
         poster_path: englishDataRef.current.poster, 
-        backdrop_path: item.backdrop_path,
-        vote_average: item.vote_average,
-        release_date: item.release_date || item.first_air_date,
+        backdrop_path: item!.backdrop_path,
+        vote_average: item!.vote_average,
+        release_date: item!.release_date || item!.first_air_date,
         rating: type === 'movie' 
-          ? (item.release_dates?.results?.find((r: any) => r.iso_3166_1 === 'US')?.release_dates?.[0]?.certification || '')
-          : (item.content_ratings?.results?.find((r: any) => r.iso_3166_1 === 'US')?.rating || ''),
+          ? (item!.release_dates?.results?.find((r: any) => r.iso_3166_1 === 'US')?.release_dates?.[0]?.certification || '')
+          : (item!.content_ratings?.results?.find((r: any) => r.iso_3166_1 === 'US')?.rating || ''),
         logo_path: logoPath,
         type 
       }];
     }
-    localStorage.setItem('onyxax_pinned', JSON.stringify(newPinned));
+    setPinned(newPinned);
     setIsPinned(!isPinned);
-    // Dispatch custom event to notify Dock
-    window.dispatchEvent(new Event('pinned_changed'));
   };
 
   const releaseDate = item.release_date || item.first_air_date;

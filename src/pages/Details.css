@@ -29,14 +29,14 @@
 .details-hero-vignette {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
   background:
-    linear-gradient(to top, var(--background) 0%, transparent 40%),
-    linear-gradient(to right, var(--background) 0%, var(--background) 5%, transparent 16%);
+    linear-gradient(to top, var(--background) 0%, transparent 50%),
+    linear-gradient(to right, var(--background) 0%, color-mix(in srgb, var(--background) 65%, transparent) 18%, transparent 42%);
 }
 
 [dir="rtl"] .details-hero-vignette {
   background:
-    linear-gradient(to top, var(--background) 0%, transparent 40%),
-    linear-gradient(to left, var(--background) 0%, var(--background) 5%, transparent 16%);
+    linear-gradient(to top, var(--background) 0%, transparent 50%),
+    linear-gradient(to left, var(--background) 0%, color-mix(in srgb, var(--background) 65%, transparent) 18%, transparent 42%);
 }
 
 .details-hero-content {

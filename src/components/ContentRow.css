@@ -3,8 +3,16 @@
 .row-wrapper { position: relative; }
 
 .row-items {
-  display: flex; gap: 12px; overflow-x: scroll; padding: 8px 4% 24px 4%;
-  scrollbar-width: none;
+  display: flex; gap: var(--card-gap); overflow-x: auto; padding: 12px 4% 24px 4%;
+  scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: 4%; scroll-behavior: smooth;
+}
+.row-items .movie-card { scroll-snap-align: start; }
+/* breathing room — first card not stuck to edge, last card not clipped */
+.row-items::after {
+  content: '';
+  flex: 0 0 4%;
+  min-width: 4%;
+  pointer-events: none;
 }
 .row-items::-webkit-scrollbar { display: none; }
 

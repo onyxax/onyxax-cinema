@@ -31,11 +31,13 @@ const Loading: React.FC<LoadingProps> = ({ isLoading, inline }) => {
   if (!visible) return null;
 
   return (
-    <div className={`loading-screen${fadingOut ? ' loading-fade-out' : ''}${inline ? ' loading-inline' : ''}`}>
-      <div className="loading-spinner-container">
-        <div className="loading-spinner"></div>
-        <div className="loading-glow"></div>
+    <div className={`loading-screen${fadingOut ? ' loading-fade-out' : ''}${inline ? ' loading-inline' : ''}`} role="status" aria-label="Loading">
+      <div className="loading-brand">
+        <img src="/AppIcon64.png" alt="" className="loading-icon" width={56} height={56} decoding="async" />
+        <span className="loading-ring" aria-hidden />
+        <span className="loading-ring loading-ring--2" aria-hidden />
       </div>
+      <span className="loading-label">ONYXAX CINEMA</span>
     </div>
   );
 };

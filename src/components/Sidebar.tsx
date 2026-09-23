@@ -1,3 +1,7 @@
+/**
+ * @deprecated — replaced by `src/components/Dock.tsx` (unified dock with collapsed state in localStorage)
+ * Kept for reference only. Do not import in new code. Will be removed in v2.0.
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 

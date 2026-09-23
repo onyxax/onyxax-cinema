@@ -1,17 +1,32 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Film, Tv, Sparkles, SlidersHorizontal, X, Grid3X3, List, Play, Plus, Info } from 'lucide-react';
+import { Film, Tv, Sparkles, SlidersHorizontal, X, Grid3X3, List } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import { fetchMoviesPage, fetchTVShowsPage, fetchAnimePage, searchContentPage } from '../services/tmdb';
 import type { TMDBMovie } from '../types/tmdb';
 import { useTranslation } from 'react-i18next';
 import useDiscordRPC from '../hooks/useDiscordRPC';
-import { IMAGE_BASE_URL } from '../services/tmdb';
+import { getSidebarCollapsed } from '../lib/storage';
+import { DOCK_WIDTH, DOCK_WIDTH_COLLAPSED } from '../lib/constants';
 import './CategoryPage.css';
 
 interface SortTab { key: string; labelKey: string; label?: string }
 interface GenrePill { id: number; labelKey: string; label?: string }
 
 const MAX_PAGES = 100;
+
+const getAdaptivePageSize = () => {
+  if (typeof window === 'undefined') return 24;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const isCollapsed = getSidebarCollapsed();
+  const dockW = isCollapsed ? DOCK_WIDTH_COLLAPSED : DOCK_WIDTH;
+  const containerW = Math.max(320, w - dockW - w * 0.08 - 20);
+  const cols = Math.max(2, Math.floor((containerW + 16) / (170 + 16)));
+  const availableH = Math.max(400, h - 260);
+  const rows = Math.max(3, Math.floor(availableH / 280));
+  const size = cols * rows;
+  return Math.min(48, Math.max(12, size));
+};
 
 const SORT_TABS: SortTab[] = [
   { key: 'popularity.desc', labelKey: 'filters.popularity' },
@@ -79,30 +94,48 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
   const config = CATEGORY_CONFIG[category];
   const Icon = config.icon;
 
-  useDiscordRPC({ details: 'Exploring OnyxaxCinema', state: `Browsing ${config.title}` }, [category]);
-
   const [items, setItems] = useState<TMDBMovie[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
+  const [pageSize, setPageSize] = useState(getAdaptivePageSize);
   const [genre, setGenre] = useState<number>(0);
   const [sort, setSort] = useState<string>('popularity.desc');
+  // eslint-disable-next-line -- stable mount timestamp for RPC
+  const mountTs = useRef(Date.now()).current;
+
+  // RPC دائماً بالإنجليزية — لا نستخدم t() لتجنب ظهور عربي في ديسكورد
+  const EN_GENRE: Record<number, string> = { 0:'All',28:'Action',35:'Comedy',18:'Drama',27:'Horror',878:'Sci-Fi',12:'Adventure',10749:'Romance',53:'Thriller',80:'Crime',14:'Fantasy',16:'Animation',10759:'Action',10765:'Sci-Fi',10751:'Family',9648:'Mystery' };
+  const EN_SORT: Record<string,string> = { 'popularity.desc':'Popular','vote_average.desc':'Top Rated','primary_release_date.desc':'Latest','original_title.asc':'A-Z' };
+  const genreEN = genre ? (EN_GENRE[genre] || 'All') : 'All';
+  const sortEN = EN_SORT[sort] || 'Popular';
+  useDiscordRPC({
+    details: `Browsing ${config.title}`,
+    state: `${genreEN} • ${sortEN}`.slice(0, 32),
+    largeImageKey: 'onyxaxcinema',
+    largeImageText: `Onyxax Cinema • ${config.title} • ${genreEN} • ${sortEN}`,
+    smallImageKey: 'onyxaxcinema',
+    smallImageText: `Onyxax Cinema • ${config.title}`,
+    startTimestamp: Math.floor(mountTs / 1000),
+    buttons: [{ label: 'Download App', url: 'https://github.com/onyxax/onyxax-cinema/releases/latest' }],
+  }, [category, genre, sort]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [ratingMin, setRatingMin] = useState('');
-  const [quickViewItem, setQuickViewItem] = useState<{ item: TMDBMovie; rect: DOMRect } | null>(null);
-
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFetchingRef = useRef(false);
   const fetchIdRef = useRef(0);
-  const scrollingRef = useRef(false);
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filtersKey = `${category}-${genre}-${sort}-${yearFrom}-${yearTo}-${ratingMin}-${searchQuery}`;
+
+  useEffect(() => {
+    const onResize = () => setPageSize(getAdaptivePageSize());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const goToPage = useCallback(async (page: number) => {
     if (isFetchingRef.current) return;
@@ -116,8 +149,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       if (yearTo) params['primary_release_date.lte'] = `${yearTo}-12-31`;
       if (ratingMin) params['vote_average.gte'] = ratingMin;
 
-      const firstTmdbPage = Math.floor((page - 1) * 24 / 20) + 1;
-      const offset = ((page - 1) * 24) % 20;
+      const firstTmdbPage = Math.floor((page - 1) * pageSize / 20) + 1;
+      const offset = ((page - 1) * pageSize) % 20;
 
       const fetchFn = searchQuery.trim()
         ? (p: number) => searchContentPage(searchQuery.trim(), p)
@@ -127,19 +160,22 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       if (fetchId !== fetchIdRef.current) return;
 
       let combined = [...result1.results];
-      if (offset + 24 > result1.results.length && firstTmdbPage < result1.total_pages) {
-        const result2 = await fetchFn(firstTmdbPage + 1);
+      const needed = offset + pageSize;
+      let nextPage = firstTmdbPage + 1;
+      while (combined.length < needed && nextPage <= result1.total_pages) {
+        const next = await fetchFn(nextPage);
         if (fetchId !== fetchIdRef.current) return;
-        combined = [...combined, ...result2.results];
+        combined = [...combined, ...next.results];
+        nextPage++;
       }
 
       const elapsed = Date.now() - startTime;
       if (elapsed < 300) await new Promise(resolve => setTimeout(resolve, 300 - elapsed));
       if (fetchId !== fetchIdRef.current) return;
 
-      setItems(combined.slice(offset, offset + 24));
+      setItems(combined.slice(offset, offset + pageSize));
       setCurrentPage(page);
-      const uiTotalPages = Math.min(Math.ceil(result1.total_results / 24), MAX_PAGES);
+      const uiTotalPages = Math.min(Math.ceil(result1.total_results / pageSize), MAX_PAGES);
       setTotalPages(uiTotalPages);
       setTotalResults(result1.total_results);
     } catch (error) {
@@ -157,7 +193,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
         isFetchingRef.current = false;
       }
     }
-  }, [genre, sort, yearFrom, yearTo, ratingMin, searchQuery, config]);
+  }, [genre, sort, yearFrom, yearTo, ratingMin, searchQuery, config, pageSize]);
 
   useEffect(() => {
     isFetchingRef.current = false;
@@ -178,44 +214,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
     return range;
   }, []);
 
-  const handleScroll = useCallback(() => {
-    scrollingRef.current = true;
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
-    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-    scrollTimerRef.current = setTimeout(() => { scrollingRef.current = false; }, 600);
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('wheel', handleScroll, { passive: true });
-    window.addEventListener('touchmove', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('wheel', handleScroll);
-      window.removeEventListener('touchmove', handleScroll);
-      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-    };
-  }, [handleScroll]);
-
   const handlePillClick = (genreId: number) => setGenre(genreId);
   const handleTabClick = (sortKey: string) => setSort(sortKey);
-
-  const handleMouseEnter = useCallback((item: TMDBMovie, rect: DOMRect) => {
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    if (scrollingRef.current) return;
-    hoverTimerRef.current = setTimeout(() => {
-      setQuickViewItem({ item, rect });
-    }, 500);
-  }, []);
-
-  const handleMouseLeaveCard = useCallback(() => {
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
-    setQuickViewItem(null);
-  }, []);
 
   return (
     <div className="category-page">
@@ -296,7 +296,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
       <div className="category-content">
         {isLoading ? (
           <div className="skeleton-grid">
-            {Array.from({ length: 24 }).map((_, i) => (
+            {Array.from({ length: pageSize }).map((_, i) => (
               <div key={i} className="skeleton-card" style={{ animationDelay: `${i * 0.03}s` }}>
                 <div className="skeleton-poster skeleton" />
                 <div className="skeleton-title-bar skeleton" />
@@ -309,30 +309,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category }) => {
           <>
             <div className={`items-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
               {items.map((item, i) => (
-                <div key={item.id} className="movie-card-wrapper"
-                  onMouseEnter={(e) => { const rect = e.currentTarget.getBoundingClientRect(); handleMouseEnter(item, rect); }}
-                  onMouseLeave={handleMouseLeaveCard}>
-                  <MovieCard item={item} type={item.media_type || category} index={i} />
-                  {quickViewItem?.item.id === item.id && (
-                    <div className="card-preview">
-                      <div className="card-preview-backdrop"
-                        style={{ backgroundImage: `url(${IMAGE_BASE_URL}${item.backdrop_path || item.poster_path})` }} />
-                      <div className="card-preview-info">
-                        <div className="card-preview-title">{item.title || item.name}</div>
-                        <div className="card-preview-meta">
-                          <span className="preview-match">{Math.round((item.vote_average || 0) * 10)}% {t('category.match')}</span>
-                          <span className="preview-year">{item.release_date?.slice(0, 4) || item.first_air_date?.slice(0, 4)}</span>
-                        </div>
-                        <div className="card-preview-actions">
-                          <button className="preview-btn primary"><Play size={14} fill="currentColor" /></button>
-                          <button className="preview-btn"><Plus size={14} /></button>
-                          <button className="preview-btn"><Info size={14} /></button>
-                        </div>
-                        <div className="card-preview-overview">{item.overview}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <MovieCard key={item.id} item={item} type={item.media_type || category} index={i} enablePreview />
               ))}
             </div>
 

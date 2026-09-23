@@ -236,10 +236,10 @@ const Auth: React.FC = () => {
         <button
           className={`lang-trigger ${isLangMenuOpen ? 'active' : ''}`}
           onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-          aria-label="Language"
+          aria-label={t('profile.language')}
         >
           <Globe size={15} />
-          <span>{languages.find(l => l.code === i18n.language)?.label || 'Language'}</span>
+          <span>{languages.find(l => l.code === i18n.language)?.label || t('profile.language')}</span>
         </button>
 
         {isLangMenuOpen && (
@@ -350,7 +350,7 @@ const Auth: React.FC = () => {
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
-                aria-label="Toggle password visibility"
+                aria-label={t('auth.togglePassword')}
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
@@ -373,7 +373,7 @@ const Auth: React.FC = () => {
                     className="password-toggle"
                     onClick={() => setShowConfirm(!showConfirm)}
                     tabIndex={-1}
-                    aria-label="Toggle confirm password visibility"
+                    aria-label={t('auth.toggleConfirmPassword')}
                   >
                     {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>

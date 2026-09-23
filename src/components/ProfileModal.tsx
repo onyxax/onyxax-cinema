@@ -49,7 +49,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
       await updateProfile(displayName, url);
     } catch (err: any) {
       console.error('File upload failed:', err);
-      setError(`Upload failed: ${err.message}. Make sure you have an unsigned upload preset named 'ml_default'.`);
+      setError(t('profile.uploadFailedWithMessage', { message: err.message }));
     } finally {
       setUploading(false);
     }
