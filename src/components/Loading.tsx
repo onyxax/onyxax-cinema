@@ -33,7 +33,7 @@ const Loading: React.FC<LoadingProps> = ({ isLoading, inline }) => {
   return (
     <div className={`loading-screen${fadingOut ? ' loading-fade-out' : ''}${inline ? ' loading-inline' : ''}`} role="status" aria-label="Loading">
       <div className="loading-brand">
-        <img src="/AppIcon64.png" alt="" className="loading-icon" width={56} height={56} decoding="async" />
+        <img src="AppIcon64.png" alt="" className="loading-icon" width={56} height={56} decoding="async" />
         <span className="loading-ring" aria-hidden />
         <span className="loading-ring loading-ring--2" aria-hidden />
       </div>

@@ -5,7 +5,9 @@ import { ArrowLeft } from 'lucide-react';
 import Player from '../components/Player';
 import Loading from '../components/Loading';
 import { fetchDetails } from '../services/tmdb';
-import { electronSend, electronOn } from '../lib/electron';
+import { electronSend } from '../lib/electron';
+import { VIDY_TRUSTED_ORIGINS } from '../lib/securePlayer';
+import { fetchAniListId } from '../lib/tmdb/anilist';
 import { getProgressMap, setProgressMap, StorageEvents } from '../lib/storage';
 import './Watch.css';
 
@@ -21,7 +23,8 @@ const Watch: React.FC = () => {
    const { isRPCEnabled } = useAuth();
   const [activeSeason, setActiveSeason] = React.useState(season || '1');
   const [activeEpisode, setActiveEpisode] = React.useState(episode || '1');
-  const [server, setServer] = React.useState<'cineplay' | 'videasy'>('videasy');
+  // Single provider (Vidy) — no server switcher.
+  const [anilistId, setAnilistId] = React.useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const metadataRef = useRef<any>(null);
 
@@ -57,23 +60,8 @@ const Watch: React.FC = () => {
   }
 
 
-  React.useEffect(() => {
-    const handleIframeNav = (_event: any, url: string) => {
-      const match = url.match(/\/tv\/[^/]+\/(\d+)\/(\d+)/);
-      if (match) {
-        setActiveSeason(match[1]);
-        setActiveEpisode(match[2]);
-      }
-    };
-    try { electronOn('IFRAME_NAVIGATED', handleIframeNav); } catch { /* ignore */ }
-    return () => {
-      try {
-        const w = window as any;
-        const ipc = w.require ? w.require('electron')?.ipcRenderer : null;
-        ipc?.removeListener?.('IFRAME_NAVIGATED', handleIframeNav);
-      } catch { /* ignore */ }
-    };
-  }, []);
+  // Vidy resolves next-episode internally (nextEpisode + autoplayNextEpisode
+  // flags + in-player picker). No parent-side iframe nav tracking needed.
 
   const [isPlaying, setIsPlaying] = React.useState(true);
   const [englishTitle, setEnglishTitle] = React.useState('');
@@ -95,6 +83,16 @@ const Watch: React.FC = () => {
         const enTitle = enData.title || enData.name || enData.original_title || enData.original_name;
         const enPoster = enData.poster_path;
         setEnglishTitle(enTitle);
+
+        // Anime route needs an AniList id: /anime/{anilistId}/{episode}.
+        if (type === 'anime') {
+          try {
+            const aid = await fetchAniListId(
+              enTitle || details.title || (details as any).name || ''
+            );
+            if (aid) setAnilistId(String(aid));
+          } catch { /* fallback: Player retries via TMDB title */ }
+        }
 
         const meta = {
           id,
@@ -129,8 +127,21 @@ const Watch: React.FC = () => {
   }, [id, type]);
 
   React.useEffect(() => {
+    const isVidyOrigin = (origin: string) => {
+      if (!origin || origin === 'null' || origin === '') return true; // same-window postMessage
+      try {
+        const u = new URL(origin);
+        const host = u.hostname.toLowerCase();
+        if (host === 'vidy.st' || host === 'www.vidy.st') return true;
+      } catch { /* fall through to prefix list */ }
+      return VIDY_TRUSTED_ORIGINS.some((o) => origin.startsWith(o));
+    };
+
     const handleMessage = (event: MessageEvent) => {
       try {
+        // Per Vidy reference: player posts JSON strings to window.parent.
+        // Ignore anything that is not from the embed.
+        if (!isVidyOrigin(event.origin)) return;
         let data = event.data;
         if (typeof data === 'string') {
           try {
@@ -138,24 +149,31 @@ const Watch: React.FC = () => {
           } catch { return; }
         }
         if (!data || typeof data !== 'object') return;
+        // About once a second — serialized local history, not playback state.
+        if (data.type === 'MEDIA_DATA') return;
 
-        // ——— Play/Pause ——— شامل كل التسميات التي يرسلها السيرفرين + حالات bool
+        // PLAYER_EVENT: { event: "timeupdate" | "play" | "pause" | "ended",
+        //                 currentTime, duration, ... }
         const evt = String(data.event || data.type || data.method || '').toLowerCase();
-        const isPauseEvt = evt.includes('pause') || data.paused === true || data.isPlaying === false || data.playing === false;
-        const isPlayEvt = evt.includes('play') || evt.includes('playing') || data.paused === false || data.isPlaying === true || data.playing === true;
-        const isSeekEvt = evt.includes('seek') || evt.includes('timeupdate') || evt === 'progress';
+        const isPauseEvt = evt === 'pause' || evt === 'ended' || data.paused === true || data.isPlaying === false || data.playing === false;
+        const isPlayEvt = evt === 'play' || data.paused === false || data.isPlaying === true || data.playing === true;
+        const isTimeEvt = evt === 'timeupdate' || evt === 'progress' || evt.includes('seek');
         if (isPauseEvt) {
           setIsPlaying(false);
           window.dispatchEvent(new Event(StorageEvents.progressChanged));
         } else if (isPlayEvt) {
           setIsPlaying(true);
           window.dispatchEvent(new Event(StorageEvents.progressChanged));
-        } else if (isSeekEvt && !isPauseEvt && !isPlayEvt) {
-          // seek بدون تغيير play state — نفرض تحديث فوري للـ RPC
+        } else if (isTimeEvt) {
+          // timeupdate without play-state change — force an RPC refresh.
           window.dispatchEvent(new Event(StorageEvents.progressChanged));
+        } else if (!evt) {
+          // Unknown shape without an event name — still try time fields below.
+        } else {
+          return;
         }
 
-        // ——— استخراج الوقت باحترافية — يدعم كل الحقول + صيغ "25:59" ———
+        // ——— استخراج الوقت — Vidy canonical fields + صيغ "25:59" ———
         const parseSec = (v: any): number | null => {
           if (v === undefined || v === null || v === '') return null;
           if (typeof v === 'number' && !isNaN(v)) return v;
@@ -165,7 +183,7 @@ const Watch: React.FC = () => {
           const n = Number(s);
           return isNaN(n) ? null : n;
         };
-        const rawTime = data.timestamp ?? data.currentTime ?? data.current_time ?? data.time ?? data.seconds ?? data.position ?? data.current_time;
+        const rawTime = data.currentTime ?? data.timestamp ?? data.current_time ?? data.time ?? data.seconds ?? data.position;
         const rawProgress = data.progress ?? data.percent ?? data.percentage ?? data.played;
         const rawDuration = data.duration ?? data.totalDuration ?? data.total ?? data.maxDuration ?? metadataRef.current?.duration;
         const tSec = parseSec(rawTime);
@@ -343,9 +361,15 @@ const Watch: React.FC = () => {
 
     const handleMessage = (event: MessageEvent) => {
       try {
-        if (event.data && typeof event.data === 'object') {
-          const data = event.data;
-          if (data.type === 'progress') {
+        let raw = event.data;
+        if (typeof raw === 'string') {
+          try { raw = JSON.parse(raw); } catch { return; }
+        }
+        if (raw && typeof raw === 'object') {
+          const data = raw;
+          if (data.type === 'MEDIA_DATA') return;
+          const evt = String(data.event || '').toLowerCase();
+          if (data.type === 'progress' || evt === 'timeupdate' || evt === 'play' || evt === 'pause' || evt === 'ended') {
             hasReceivedDurationRef.current = true;
             updateRpc(false);
           }
@@ -388,13 +412,12 @@ const Watch: React.FC = () => {
       </button>
       
       <div className="player-container-fixed">
-        <Player 
-          type={type} 
-          id={id} 
-          season={season || '1'} 
-          episode={episode || '1'} 
-          server={server}
-          onServerChange={setServer}
+        <Player
+          type={type}
+          id={id}
+          season={activeSeason}
+          episode={activeEpisode}
+          anilistId={anilistId}
         />
       </div>
     </div>

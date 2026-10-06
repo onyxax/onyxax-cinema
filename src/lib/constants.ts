@@ -1,6 +1,6 @@
 // App-wide constants — single source for storage limits, cache, etc.
 
-export const APP_VERSION = '1.2.9';
+export const APP_VERSION = '1.2.10';
 export const CACHE_PREFIX = 'onyxax_cache_';
 export const CACHE_TTL_MS = 1000 * 60 * 60; // 1h
 export const PIN_LIMIT = 15;

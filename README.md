@@ -66,7 +66,7 @@
 ## <img src="https://api.iconify.design/lucide:download.svg?color=%23d97757" width="20" height="20" style="vertical-align:-4px; display:inline-block"> Download
 
 <p align="center">
-  <a href="https://github.com/onyxax/onyxax-cinema/releases/latest"><img src="https://img.shields.io/badge/Download%20for%20Windows-1.2.9-111827?style=for-the-badge&labelColor=111827&color=d97757&logo=windows&logoColor=white" alt="Download for Windows"></a>
+  <a href="https://github.com/onyxax/onyxax-cinema/releases/latest"><img src="https://img.shields.io/badge/Download%20for%20Windows-1.2.10-111827?style=for-the-badge&labelColor=111827&color=d97757&logo=windows&logoColor=white" alt="Download for Windows"></a>
 </p>
 
 **3 steps to watch:**
@@ -74,7 +74,7 @@
 | Step | What to do | |
 | :---: | :--- | :---: |
 | **1** | Click the big **Download for Windows** button above | <img src="https://api.iconify.design/lucide:mouse-pointer-click.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
-| **2** | Open the downloaded `OnyxaxCinemaSetup1.2.9.exe` and click **Next → Install** | <img src="https://api.iconify.design/lucide:package-open.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
+| **2** | Open the downloaded `OnyxaxCinemaSetup1.2.10.exe` and click **Next → Install** | <img src="https://api.iconify.design/lucide:package-open.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
 | **3** | Open **Onyxax Cinema** from Desktop/Start and start watching | <img src="https://api.iconify.design/lucide:play.svg?color=%23d97757" width="16" height="16" style="vertical-align:-4px; display:inline-block"> |
 
 - **System:** Windows 10 / 11 (64-bit) — no extra setup.

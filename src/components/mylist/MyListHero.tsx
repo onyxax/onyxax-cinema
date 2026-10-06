@@ -55,12 +55,12 @@ const MyListHero: React.FC<Props> = ({ items, counts, title, subtitle }) => {
     return (
       <section className="mylist-hero mylist-hero--minimal mylist-hero--empty" aria-label={title}>
         <div className="hero-bg" aria-hidden>
-          <img src="/AppIcon512.png" alt="" className="hero-watermark" />
+          <img src="AppIcon512.png" alt="" className="hero-watermark" />
         </div>
         <div className="hero-inner">
           <div className="hero-left">
             <div className="hero-brand">
-              <img src="/AppIcon64.png" alt="" width={28} height={28} className="hero-brand-icon" aria-hidden />
+              <img src="AppIcon64.png" alt="" width={28} height={28} className="hero-brand-icon" aria-hidden />
               <span className="hero-brand-name">ONYXAX <span>CINEMA</span></span>
               <span className="hero-brand-sep">•</span>
               <span className="hero-brand-count">{counts.all} titles</span>
@@ -85,14 +85,14 @@ const MyListHero: React.FC<Props> = ({ items, counts, title, subtitle }) => {
       {...bind}
     >
       <div className="hero-bg" aria-hidden>
-        <img src="/AppIcon512.png" alt="" className="hero-watermark" />
+        <img src="AppIcon512.png" alt="" className="hero-watermark" />
       </div>
 
       <div className="hero-inner">
         {/* Left — static page identity */}
         <div className="hero-left">
           <div className="hero-brand">
-            <img src="/AppIcon64.png" alt="" width={28} height={28} className="hero-brand-icon" aria-hidden />
+            <img src="AppIcon64.png" alt="" width={28} height={28} className="hero-brand-icon" aria-hidden />
             <span className="hero-brand-name">ONYXAX <span>CINEMA</span></span>
             <span className="hero-brand-sep">•</span>
             <span className="hero-brand-count">{counts.all} titles</span>
@@ -114,7 +114,7 @@ const MyListHero: React.FC<Props> = ({ items, counts, title, subtitle }) => {
               {currentPoster ? (
                 <img key={`thumb-${String(current.id)}`} src={`${THUMBNAIL_BASE_URL}${currentPoster}`} alt="" className="cta-thumb-img cta-thumb-img--smooth" loading="eager" />
               ) : (
-                <span className="cta-thumb-fallback"><img src="/AppIcon64.png" alt="" width={22} height={22} /></span>
+                <span className="cta-thumb-fallback"><img src="AppIcon64.png" alt="" width={22} height={22} /></span>
               )}
             </span>
             <span className="cta-copy" key={`copy-${String(current.id)}`}>
@@ -132,7 +132,7 @@ const MyListHero: React.FC<Props> = ({ items, counts, title, subtitle }) => {
             {currentPoster ? (
               <img key={String(current.id)} src={`${THUMBNAIL_BASE_URL}${currentPoster}`} alt="" className="hero-poster-img hero-poster-img--smooth" />
             ) : (
-              <div key="fallback" className="hero-poster-fallback"><img src="/AppIcon180.png" alt="" width={56} height={56} /></div>
+              <div key="fallback" className="hero-poster-fallback"><img src="AppIcon180.png" alt="" width={56} height={56} /></div>
             )}
             <span className="hero-poster-type">{currentType}</span>
             {hasProgress && (

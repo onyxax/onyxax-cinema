@@ -178,23 +178,23 @@ ipcMain.handle('INSTALL_UPDATE', (_event, { path, mode }: { path: string, mode: 
 
 // ============================================================
 // SECURE PLAYER URL GENERATION (Main Process Only)
+// Provider: Vidy (https://vidy.st)
+//   /movie/{tmdbId}
+//   /tv/{tmdbId}/{season}/{episode}
+//   /anime/{anilistId}/{episode}
+// Flags: color, progress, autoplay, nextEpisode,
+//        episodeSelector, autoplayNextEpisode
 // The real URL never appears in renderer source code.
-// Uses multi-layer obfuscation: split segments + runtime XOR.
+// Uses split base64 segments + AES-256-CBC encrypted IPC.
 // ============================================================
-const _S = [
-  Buffer.from('aHR0cHM6Ly9j', 'base64').toString(),     // https://c
-  Buffer.from('aW5lcGxheS51', 'base64').toString(),      // ineplay.u
-  Buffer.from('cC5yYWlsd2F5', 'base64').toString(),      // p.railway
-  Buffer.from('LmFwcA==', 'base64').toString(),           // .app
-];
-const _V = [
-  Buffer.from('aHR0cHM6Ly9w', 'base64').toString(),      // https://p
-  Buffer.from('bGF5ZXIudmlk', 'base64').toString(),      // layer.vid
-  Buffer.from('ZWFzeS5uZXQ=', 'base64').toString(),      // easy.net
+const _VIDY = [
+  Buffer.from('aHR0cHM6Ly92', 'base64').toString(),      // https://v
+  Buffer.from('aWR5LnN0', 'base64').toString(),           // idy.st
 ];
 
-function _resolveBase(server: 'cineplay' | 'videasy'): string {
-  return server === 'cineplay' ? _S.join('') : _V.join('');
+function _resolveBase(_server?: string): string {
+  void _server; // single provider now (legacy 'cineplay'/'videasy' map here)
+  return _VIDY.join('');
 }
 
 // AES-256-CBC encrypt (mirrors the renderer's _dec in Player.tsx)
@@ -212,28 +212,41 @@ const _CH = Buffer.from('X19yZXNvbHZlX18=', 'base64').toString(); // __resolve__
 
 ipcMain.handle(_CH, (_event, payload: string) => {
   try {
-    // Payload is base64-encoded JSON: { server, type, id, season?, episode? }
-    const { server, type, id, season, episode } = JSON.parse(
+    // Payload is base64-encoded JSON:
+    // { server (legacy, ignored), type, id, season?, episode?,
+    //   anilistId?, progress?, autoplay?, color?,
+    //   nextEpisode?, episodeSelector?, autoplayNextEpisode? }
+    const { type, id, season, episode, anilistId, progress, autoplay, color,
+      nextEpisode, episodeSelector, autoplayNextEpisode } = JSON.parse(
       Buffer.from(payload, 'base64').toString('utf8')
     );
 
-    const base = _resolveBase(server);
+    const base = _resolveBase();
+    const accent = String(color || 'D97757').replace('#', '');
+    const withProgress = typeof progress === 'number' && progress > 5
+      ? `&progress=${Math.floor(progress)}`
+      : '';
+    const withAutoplay = autoplay ? '&autoplay=true' : '';
 
     let url: string;
-    if (server === 'cineplay') {
-      if (type === 'movie') {
-        url = `${base}/movie/${id}`;
-      } else {
-        url = `${base}/tv/${id}/${season || '1'}/${episode || '1'}`;
-      }
+    if (type === 'movie') {
+      url = `${base}/movie/${id}?color=${accent}${withProgress}${withAutoplay}`;
+    } else if (type === 'anime') {
+      const aid = anilistId ?? id;
+      const ep = episode || season || '1';
+      const extras = [
+        `episodeSelector=${episodeSelector ?? true ? 'true' : 'false'}`,
+        `nextEpisode=${nextEpisode ?? true ? 'true' : 'false'}`,
+        `autoplayNextEpisode=${autoplayNextEpisode ?? true ? 'true' : 'false'}`,
+      ].join('&');
+      url = `${base}/anime/${aid}/${ep}?color=${accent}&${extras}${withProgress}${withAutoplay}`;
     } else {
-      const accent = 'd97757';
-      const params = `nextEpisode=true&autoplayNextEpisode=true&overlay=true&color=${accent}`;
-      if (type === 'movie') {
-        url = `${base}/movie/${id}?${params}`;
-      } else {
-        url = `${base}/tv/${id}/${season || '1'}/${episode || '1'}?${params}`;
-      }
+      const extras = [
+        `nextEpisode=${nextEpisode ?? true ? 'true' : 'false'}`,
+        `episodeSelector=${episodeSelector ?? true ? 'true' : 'false'}`,
+        `autoplayNextEpisode=${autoplayNextEpisode ?? true ? 'true' : 'false'}`,
+      ].join('&');
+      url = `${base}/tv/${id}/${season || '1'}/${episode || '1'}?color=${accent}&${extras}${withProgress}${withAutoplay}`;
     }
 
     // Return the URL encrypted so the renderer can't log it in plaintext
@@ -398,7 +411,7 @@ function createWindow() {
           window.__onyxax_progress_listener__ = true;
           window.addEventListener('message', function(event) {
             try {
-              var trusted = ['https://cineplay.railway.app', 'https://player.videasy.net', window.location.origin];
+              var trusted = ['https://vidy.st', 'https://www.vidy.st', window.location.origin];
               if (event.origin && trusted.indexOf(event.origin) === -1 && !trusted.some(function(o){ return event.origin.indexOf(o) === 0; })) {
                 // allow if origin is empty (postMessage from same window) or trusted prefix
                 if (event.origin !== '' && event.origin !== 'null') return;
@@ -408,6 +421,9 @@ function createWindow() {
                 try { data = JSON.parse(data); } catch(e) { return; }
               }
               if (!data || typeof data !== 'object') return;
+              // Vidy posts JSON strings: PLAYER_EVENT {event, currentTime, duration}
+              // or MEDIA_DATA {type:'MEDIA_DATA', ...} (local history — ignore).
+              if (data.type === 'MEDIA_DATA') return;
               function parseSec(v) {
                 if (v === undefined || v === null || v === '') return null;
                 if (typeof v === 'number' && !isNaN(v)) return v;
@@ -417,7 +433,8 @@ function createWindow() {
                 var n = Number(s);
                 return isNaN(n) ? null : n;
               }
-              var rawTime = (data.timestamp !== undefined ? data.timestamp : (data.currentTime !== undefined ? data.currentTime : (data.current_time !== undefined ? data.current_time : (data.time !== undefined ? data.time : (data.seconds !== undefined ? data.seconds : data.position)))));
+              // Vidy canonical fields first, then legacy fallbacks.
+              var rawTime = (data.currentTime !== undefined ? data.currentTime : (data.timestamp !== undefined ? data.timestamp : (data.current_time !== undefined ? data.current_time : (data.time !== undefined ? data.time : (data.seconds !== undefined ? data.seconds : data.position)))));
               var rawProgress = (data.progress !== undefined ? data.progress : (data.percent !== undefined ? data.percent : (data.percentage !== undefined ? data.percentage : data.played)));
               var rawDuration = (data.duration !== undefined ? data.duration : (data.totalDuration !== undefined ? data.totalDuration : data.maxDuration));
               var tSec = parseSec(rawTime);

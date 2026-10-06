@@ -1,10 +1,24 @@
 // Secure player helpers — mirrors electron/main.ts logic
 // In Electron: decrypt the IPC payload. In browser: build URL directly for preview.
+// Provider: Vidy (https://vidy.st) — see embed reference:
+//   /movie/{tmdbId}
+//   /tv/{tmdbId}/{season}/{episode}
+//   /anime/{anilistId}/{episode}
+//   flags: color (6-digit hex), progress (seconds), autoplay,
+//          nextEpisode + episodeSelector + autoplayNextEpisode (TV/anime)
 
-const CINEPLAY_BASE = ['aHR0cHM6Ly9j','aW5lcGxheS51','cC5yYWlsd2F5','LmFwcA=='].map(s => atob(s)).join('');
-const VIDEASY_BASE  = ['aHR0cHM6Ly9w','bGF5ZXIudmlk','ZWFzeS5uZXQ='].map(s => atob(s)).join('');
+const VIDY_BASE = ['aHR0cHM6Ly92', 'aWR5LnN0'].map(s => atob(s)).join('');
+export const VIDY_BASE_URL = 'https://vidy.st';
 export const PLAYER_CHANNEL = atob('X19yZXNvbHZlX18='); // __resolve__
 const RAW_KEY_B64 = 'T255eGF4X0NpbmVtYV9TZWN1cmVfS2V5XzIwMjY=';
+
+export type PlayerServer = 'vidy';
+// Legacy providers (cineplay/videasy) now resolve to Vidy — kept for backward compat.
+export type LegacyPlayerServer = 'cineplay' | 'videasy';
+type AnyServer = PlayerServer | LegacyPlayerServer;
+
+export const PLAYER_ACCENT = 'D97757';
+export const VIDY_TRUSTED_ORIGINS = ['https://vidy.st', 'https://www.vidy.st'];
 
 let _key: Buffer | null = null;
 function getKey(): Buffer | null {
@@ -33,37 +47,85 @@ export function decryptPlayerUrl(enc: string): string {
   } catch { return ''; }
 }
 
+export interface VidyUrlOptions {
+  /** Resume position in seconds — appended as ?progress= */
+  progress?: number;
+  /** Off by default. Only set when the embed page already had a user gesture. */
+  autoplay?: boolean;
+  /** 6-digit hex without '#'. Defaults to app accent. */
+  color?: string;
+  /** TV/anime extras — default true per reference worked examples. */
+  nextEpisode?: boolean;
+  episodeSelector?: boolean;
+  autoplayNextEpisode?: boolean;
+  /** For anime: resolved AniList id. Falls back to `id` when missing. */
+  anilistId?: string | number | null;
+}
+
+function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
+  const usp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === false) continue;
+    usp.set(k, String(v));
+  }
+  const q = usp.toString();
+  return q ? `?${q}` : '';
+}
+
 export function buildPlayerUrlDirect(
-  server: 'cineplay' | 'videasy',
+  _server: AnyServer,
   type: 'movie' | 'tv' | 'anime',
   id: string,
   season?: string,
-  episode?: string
+  episode?: string,
+  opts: VidyUrlOptions = {}
 ): string {
-  const base = server === 'cineplay' ? CINEPLAY_BASE : VIDEASY_BASE;
-  if (server === 'cineplay') {
-    return type === 'movie' ? `${base}/movie/${id}` : `${base}/tv/${id}/${season || '1'}/${episode || '1'}`;
+  const base = VIDY_BASE;
+  const color = (opts.color || PLAYER_ACCENT).replace('#', '');
+  const progress = opts.progress && opts.progress > 5 ? Math.floor(opts.progress) : undefined;
+  const autoplay = opts.autoplay ? 'true' : undefined;
+
+  if (type === 'movie') {
+    return `${base}/movie/${id}${buildQuery({ color, progress, autoplay })}`;
   }
-  const accent = 'd97757';
-  const params = `nextEpisode=true&autoplayNextEpisode=true&overlay=true&color=${accent}`;
-  return type === 'movie'
-    ? `${base}/movie/${id}?${params}`
-    : `${base}/tv/${id}/${season || '1'}/${episode || '1'}?${params}`;
+  if (type === 'anime') {
+    const anilistId = opts.anilistId ?? id;
+    const ep = episode || season || '1';
+    return `${base}/anime/${anilistId}/${ep}${buildQuery({
+      color,
+      progress,
+      autoplay,
+      episodeSelector: opts.episodeSelector ?? true,
+      nextEpisode: opts.nextEpisode ?? true,
+      autoplayNextEpisode: opts.autoplayNextEpisode ?? true,
+    })}`;
+  }
+  const s = season || '1';
+  const e = episode || '1';
+  return `${base}/tv/${id}/${s}/${e}${buildQuery({
+    color,
+    progress,
+    autoplay,
+    nextEpisode: opts.nextEpisode ?? true,
+    episodeSelector: opts.episodeSelector ?? true,
+    autoplayNextEpisode: opts.autoplayNextEpisode ?? true,
+  })}`;
 }
 
 export async function resolvePlayerUrl(
-  server: 'cineplay' | 'videasy',
+  server: AnyServer,
   type: 'movie' | 'tv' | 'anime',
   id: string,
   season?: string,
-  episode?: string
+  episode?: string,
+  opts: VidyUrlOptions = {}
 ): Promise<string | null> {
   // Try Electron IPC first
   try {
     const { isElectron } = await import('./electron');
     if (isElectron()) {
       const { electronInvoke } = await import('./electron');
-      const payload = btoa(JSON.stringify({ server, type, id, season, episode }));
+      const payload = btoa(JSON.stringify({ server, type, id, season, episode, ...opts }));
       const encrypted = await electronInvoke(PLAYER_CHANNEL, payload);
       if (encrypted) {
         const url = decryptPlayerUrl(encrypted);
@@ -72,5 +134,5 @@ export async function resolvePlayerUrl(
     }
   } catch { /* fallback to direct */ }
   // Browser preview fallback (or IPC failed)
-  return buildPlayerUrlDirect(server, type, id, season, episode);
+  return buildPlayerUrlDirect(server, type, id, season, episode, opts);
 }

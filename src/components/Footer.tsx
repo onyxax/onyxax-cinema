@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
       <div className="footer-inner">
         <div className="footer-col footer-col--brand">
           <Link to="/" className="footer-brand">
-            <img src="/AppIcon64.png" alt="" className="footer-logo" width={32} height={32} />
+            <img src="AppIcon64.png" alt="" className="footer-logo" width={32} height={32} />
             <span className="footer-brand-name">ONYXAX <span>CINEMA</span></span>
             <span className="footer-version">v{APP_VERSION}</span>
           </Link>
